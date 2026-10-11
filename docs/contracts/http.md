@@ -29,6 +29,8 @@ Normalização/idempotência da confirmação: SHA256 recalculado no servidor, r
 
 Limites demo: arquivos1048576bytes/100registros, cinco conferências incluindo três exemplos; validade fixa24h. start/login10/min/IP, reset1/min/visitante e10/h/IP, import20/min/visitante. Cache/rate limits e sessões no PostgreSQL; não em memória do container.
 
+A prévia é uma avaliação: CSV estruturalmente/semanticamente inválido recebe200 com ImportPreview{valid:false,errors}, permitindo mensagens por linha. Request sem arquivo ou acima do limite de bytes recebe422 ApiError. Confirmar conteúdo inválido sempre recebe422 e não persiste fonte/linhas/evento. A prévia nunca reserva versão nem garante confirmação futura.
+
 ## Interface entre serviços
 
 CurrentWorkspace em App\Domain\Access contém id,expiresAt,kind,userId. WorkspaceTransaction::run(scope,callback) executa transação, bloqueia workspace e verifica revogação/DB clock_timestamp depois do lock e antes do commit. Serviços de fontes/conciliação/revisão usam essa operação e depois bloqueiam conference/result, nessa ordem. Não alterar a geração de um scope antigo pelo novo silenciosamente.

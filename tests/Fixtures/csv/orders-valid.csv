@@ -1,0 +1,4 @@
+order_id,ordered_at,gross_amount,currency
+0001,2026-01-01,1.10,BRL
+1,2026-12-31,2.22,BRL
+"Ab,""C""",2026-06-01,0.01,BRL
