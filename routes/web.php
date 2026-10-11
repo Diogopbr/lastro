@@ -3,6 +3,7 @@
 use App\Http\Controllers\Access\AccessController;
 use App\Http\Controllers\Access\DemoController;
 use App\Http\Controllers\Conferences\ConferenceController;
+use App\Http\Controllers\Imports\ExampleController;
 use App\Http\Controllers\Imports\SourceController;
 use App\Http\Middleware\ResolveWorkspace;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::redirect('/', '/entrar');
+Route::get('/modelos/{kind}.csv', [ExampleController::class, 'template'])->whereIn('kind', ['orders', 'payouts']);
+Route::get('/exemplos/{kind}.csv', [ExampleController::class, 'example'])->whereIn('kind', ['orders', 'payouts']);
 Route::get('/entrar', fn () => Inertia::render('Auth/Login', ['demoEnabled' => config('lastro.demo_enabled')]))->name('login');
 Route::get('/csrf', fn (Request $request) => response()->json(['token' => $request->session()->token()]));
 Route::post('/login', [AccessController::class, 'login'])->middleware('throttle:access');
