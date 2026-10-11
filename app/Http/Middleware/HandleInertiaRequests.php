@@ -37,7 +37,17 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            'auth' => function () use ($request): array {
+                $user = $request->user();
+                $workspace = $request->attributes->get('workspace');
+
+                return [
+                    'user' => $user === null ? null : ['id' => $user->id, 'displayName' => $user->name],
+                    'workspace' => $workspace === null ? null : ['id' => $workspace->id, 'kind' => $workspace->kind, 'expiresAt' => $workspace->expiresAt],
+                    'demoEnabled' => config('lastro.demo_enabled'),
+                ];
+            },
+            'flash' => ['success' => fn (): ?string => $request->session()->get('success')],
         ];
     }
 }
