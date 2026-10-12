@@ -47,5 +47,33 @@ Falha injetada após gravação das linhas prova rollback integral. Coleta de
 workspace com fontes remove corretamente linhas/eventos/atores juntos.
 Relatórios: docs/tasks/copilot-parser-result.md e copilot-import-result.md.
 
-Conciliação/revisão/exportação ainda não entregues. Frontend ainda precisa de
-QA do fluxo completo e design no navegador; Lastro não está publicado.
+## Conciliação, revisão e exportação — integração em12/10
+
+Copilot entregou os domínios nas tarefas4/5. Codex executou independentemente
+61 testes /403 assertions, integrou rotas reais e projeções de conferências.
+O teste HTTP produtivo percorre conciliar/revisar/filtrar/exportar e comprova
+progresso atualizado. Dois testes de formulários passaram a usar os caminhos
+produtivos depois de detectar conflito entre nomes de rotas das fixtures.
+
+A suíte inteira passou com **275 testes /1275 assertions** em PostgreSQL real.
+Inclui disputas run/run, review/reopen, export/review e reset/export, com
+processos/conexões independentes e bloqueio observado. Exportação materializa
+um único snapshot REPEATABLE READ antes de liberar a resposta; campos textuais
+com risco de fórmula recebem proteção, dinheiro negativo permanece decimal.
+Não houve teste de fórmulas em Excel, nem afirmação de leitura bancária real.
+
+DemoSeeder agora cria fontes e execuções pelos serviços reais: Marketplace
+com quatro classificações, Loja online conciliada e Pedidos avulsos com duas
+ausências. Testes específicos verificam6fontes/3runs/8resultados, idempotência,
+isolamento de dois visitantes e coleta após reset. Fixtures isoladas de domínio
+desativam enriquecimento dos exemplos via LASTRO_DEMO_EXAMPLES=false; o padrão
+da aplicação é true, e testes específicos + E2E exercitam o enriquecimento real.
+
+Ruling do formato: o CSV segue o cabeçalho fixo dos contratos, uma linha por
+resultado. Origem/hash são consultáveis no detalhe; totais globais na aplicação.
+Não inserir rodapés/linhas sintéticas no CSV para cumprir frase genérica anterior
+do plano. O arquivo contém todas as linhas mesmo com filtros ou pendências.
+
+Relatórios externos em docs/tasks/copilot-reconciliation-result.md e
+copilot-review-export-result.md. Frontend ainda precisa concluir correções e
+QA do fluxo completo no navegador; Lastro não está publicado.

@@ -1,0 +1,4 @@
+order_id,payout_id,payout_date,gross_amount,fee_amount,net_amount,currency
+0001,p1,2026-05-01,100.00,5.00,95.00,BRL
+0002,p2,2026-05-02,190.00,5.00,185.00,BRL
+0004,p4,2026-05-03,400.00,10.00,390.00,BRL
