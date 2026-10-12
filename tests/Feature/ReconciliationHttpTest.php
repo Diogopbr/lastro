@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Domain\Access\DemoWorkspace;
 use Illuminate\Support\Facades\DB;
 use Tests\Fixtures\ReconciliationDatabase;
 
@@ -15,10 +16,14 @@ class ReconciliationHttpTest extends ReconciliationDatabase
         $show = $this->getJson('/execucoes/'.$run['id'])->assertOk()->assertJsonPath('results.total', 4)->json();
         $result = collect($show['results']['items'])->firstWhere('classification', 'amountMismatch');
         $this->postJson('/resultados/'.$result['id'].'/revisoes', ['expectedVersion' => 1, 'action' => 'reviewed', 'note' => 'Diferença registrada na origem.'])->assertOk()->assertJsonPath('classification', 'amountMismatch')->assertJsonPath('reviewStatus', 'reviewed')->assertJsonPath('version', 2);
+        $this->getJson('/resultados/'.$result['id'])->assertOk()->assertJsonPath('version', 2)->assertJsonPath('reviewEvents.0.note', 'Diferença registrada na origem.');
         $this->getJson('/conferencias/'.$this->conferenceId)->assertOk()->assertJsonPath('run.id', $run['id'])->assertJsonPath('progress.divergences', 3)->assertJsonPath('progress.reviewed', 1);
         $this->getJson('/conferencias')->assertOk()->assertJsonFragment(['progress' => ['divergences' => 3, 'reviewed' => 1]]);
         $this->getJson('/execucoes/'.$run['id'].'/resultados?classification=amountMismatch')->assertOk()->assertJsonPath('total', 1);
         $this->get('/execucoes/'.$run['id'].'/exportar?classification=matched')->assertOk()->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
         $this->assertSame(4, DB::table('results')->count());
+        $other = app(DemoWorkspace::class)->start(str_repeat('b', 64));
+        $this->actingAs($other);
+        $this->getJson('/resultados/'.$result['id'])->assertNotFound()->assertJsonPath('code', 'not_found');
     }
 }

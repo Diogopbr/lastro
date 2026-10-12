@@ -36,4 +36,5 @@ Route::middleware(ResolveWorkspace::class)->group(function (): void {
     Route::get('/execucoes/{id}/resultados', [RunController::class, 'results'])->whereUuid('id');
     Route::get('/execucoes/{id}/exportar', ExportController::class)->whereUuid('id');
     Route::post('/resultados/{id}/revisoes', [ReviewController::class, 'store'])->whereUuid('id');
+    Route::get('/resultados/{id}', [ReviewController::class, 'show'])->whereUuid('id');
 });

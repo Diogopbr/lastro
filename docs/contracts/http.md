@@ -20,6 +20,7 @@ Aplicação Laravel/Vue/Inertia no mesmo domínio. Páginas recebem props do ser
 | GET | /execucoes/{id} | Runs/Show; conference,run,results,filters. |
 | GET | /execucoes/{id}/resultados | PageOfResults; classification,reviewStatus,search,page,pageSize (1..20); totais da execução permanecem globais. |
 | POST | /resultados/{id}/revisoes | expectedVersion,action(reviewed/reopened),note; ResultProjection. Não muda classificação/valores. |
+| GET | /resultados/{id} | ResultProjection atual e isolada; recuperação de409 sem depender do filtro/página atual. |
 | GET | /execucoes/{id}/exportar | CSV completo, mesmo com filtros/pendências; snapshot REPEATABLE READ materializado antes de transmitir. |
 | GET | /modelos/{orders\|payouts}.csv, /exemplos/{orders\|payouts}.csv | Modelos/exemplos fictícios fixos, sem arquivos de visitantes. |
 
