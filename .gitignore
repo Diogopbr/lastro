@@ -44,3 +44,5 @@ boost.json
 .env.*
 !.env.example
 /database/*.sqlite*
+
+.vercel

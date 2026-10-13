@@ -13,6 +13,7 @@ if (-not (Test-Path $settingsPath)) { throw 'Run scripts/bootstrap.ps1 or provid
 $settings = Get-Content -LiteralPath $settingsPath -Raw | ConvertFrom-Json
 $env:APP_KEY = $settings.appKey
 $env:DB_CONNECTION = 'pgsql'
+$env:DB_URL = ''
 $env:DB_HOST = $settings.host
 $env:DB_PORT = [string]$settings.port
 $env:DB_DATABASE = if ($Test) { $settings.testDatabase } else { $settings.database }

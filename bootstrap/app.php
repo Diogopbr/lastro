@@ -4,10 +4,12 @@ use App\Http\Controllers\Health\ReadinessController;
 use App\Http\Middleware\CleanupExpiredWorkspaces;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\ResolveWorkspace;
+use App\Http\Middleware\VercelIngress;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->replace(TrustProxies::class, VercelIngress::class);
         $middleware->web(append: [HandleInertiaRequests::class, CleanupExpiredWorkspaces::class]);
         $middleware->prependToPriorityList(ThrottleRequests::class, ResolveWorkspace::class);
     })

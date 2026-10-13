@@ -1,0 +1,51 @@
+FROM node:24.15.0-bookworm-slim@sha256:4e6b70dd6cbfc88c8157ba19aa3d9f9cce6ba4703576d55459e45efcbc9c5f5d AS frontend
+WORKDIR /build
+COPY package.json package-lock.json .npmrc vite.config.js ./
+RUN npm ci
+COPY resources/ ./resources/
+COPY public/fonts/ ./public/fonts/
+RUN npm run build
+
+FROM composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac AS composer
+
+FROM dunglas/frankenphp:1.13.0-php8.5-bookworm@sha256:265db135c5bddce6e3aab85d8943052d37a2f0b75211a21fec5ab5ff05826713 AS php-base
+RUN install-php-extensions pdo_pgsql intl mbstring zip opcache
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+WORKDIR /app
+
+FROM php-base AS dependencies
+COPY composer.json composer.lock artisan ./
+COPY app/ ./app/
+COPY bootstrap/ ./bootstrap/
+COPY config/ ./config/
+COPY routes/ ./routes/
+COPY database/ ./database/
+COPY resources/views/ ./resources/views/
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-scripts --optimize-autoloader
+
+FROM php-base AS runtime
+COPY app/ ./app/
+COPY bootstrap/ ./bootstrap/
+COPY config/ ./config/
+COPY routes/ ./routes/
+COPY database/ ./database/
+COPY resources/views/ ./resources/views/
+COPY public/ ./public/
+COPY artisan composer.json composer.lock ./
+COPY --from=dependencies /app/vendor/ ./vendor/
+COPY --from=frontend /build/public/build/ ./public/build/
+COPY Caddyfile /etc/caddy/Caddyfile
+COPY scripts/container-php.ini /usr/local/etc/php/conf.d/zz-lastro.ini
+COPY scripts/container-entrypoint.sh /usr/local/bin/lastro-start
+RUN mkdir -p storage/app/private storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs \
+    && php artisan package:discover --ansi \
+    && useradd --user-group --uid 10001 --home-dir /app --no-create-home lastro \
+    && chown -R lastro:lastro storage bootstrap/cache /config /data \
+    && chmod 750 /usr/local/bin/lastro-start \
+    && chown lastro:lastro /usr/local/bin/lastro-start \
+    && setcap -r /usr/local/bin/frankenphp
+ENV APP_ENV=production APP_DEBUG=false PORT=8080 LOG_CHANNEL=stderr LOG_LEVEL=warning
+ENV SESSION_DRIVER=database CACHE_STORE=database SESSION_SECURE_COOKIE=true SESSION_COOKIE=lastro_session
+EXPOSE 8080
+USER lastro
+ENTRYPOINT ["/usr/local/bin/lastro-start"]
