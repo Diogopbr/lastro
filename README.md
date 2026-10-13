@@ -1,12 +1,16 @@
 # Lastro
 
+[![Verificação](https://github.com/Diogopbr/lastro/actions/workflows/ci.yml/badge.svg)](https://github.com/Diogopbr/lastro/actions/workflows/ci.yml)
+
 Conferência de pedidos e repasses com Vue, Laravel e PostgreSQL. Importe dois
 CSVs, encontre diferenças de valor ou identificadores ausentes, registre uma
 revisão e exporte o resultado sem perder a origem dos dados.
 
 Projeto de portfólio de **Diogo Pereira**. A demonstração usa dados fictícios;
 não há integração bancária, movimentação de dinheiro ou certificação de repasse.
-Implementação local verificada; publicação e CI remoto ainda em andamento.
+[Experimente a demonstração](https://lastro-red.vercel.app) ·
+[Código no GitHub](https://github.com/Diogopbr/lastro) ·
+[Evidências de publicação](docs/evidence/publication.md)
 
 ![Entrada com uma comparação fictícia concreta](docs/screenshots/entrada.png)
 
@@ -109,11 +113,17 @@ validate/check-platform-reqs, Pint, PHPUnit, typecheck, Vitest, build e Playwrig
 A [CI](.github/workflows/ci.yml) prepara banco com role sem superuser, instala
 dos locks e percorre o mesmo caminho. Rodar localmente não declara CI remoto.
 
-Verificado em 12/10/2026: **283 testes PHP / 1.315 assertions**, **36 testes
-frontend** e **4 cenários Playwright**. Disputas usam processos/conexões
+Verificado em 12–13/10/2026: **284 testes PHP / 1.319 assertions**, **36 testes
+frontend** e **5 cenários Playwright**. Disputas usam processos/conexões
 independentes e bloqueio observado no PostgreSQL; há controle negativo da quota.
 Sessão/CSRF foram testados em duas instâncias HTTP separadas. Evidências em
 [progresso](docs/evidence/progress.md) e relatórios de tarefas.
+CI Linux passou no commit `9e2814e`. Os quatro cenários também passaram no
+domínio público, em50,8s. Sessão e visitante usam cookies Secure/HttpOnly/Lax;
+CSRF inválido retorna419, e caminhos privados retornam404.
+O quinto cenário percorreu importação, conciliação, revisão e download por
+Tab/Enter, em execução adicional:7,3s local e16,8s no domínio público. A seleção
+do arquivo usa a automação do diálogo nativo, aberto pelo teclado.
 
 ## Limites da demonstração e do formato
 

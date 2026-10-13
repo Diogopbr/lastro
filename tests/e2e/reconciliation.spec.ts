@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page, type Locator } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs/promises';
 
@@ -31,6 +31,50 @@ async function accessible(page: Page) {
   expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()).violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(await page.evaluate(() => innerWidth));
 }
+
+async function tabTo(page: Page, target: Locator) {
+  await expect(target).toBeAttached();
+  for (let step = 0; step < 80; step++) {
+    if (await target.evaluate(el => el === document.activeElement)) return;
+    await page.keyboard.press('Tab');
+  }
+  await expect(target).toBeFocused();
+}
+
+async function keyboardActivate(page: Page, target: Locator) {
+  await tabTo(page, target);
+  await page.keyboard.press('Enter');
+}
+
+test('imports the empty example, reviews and downloads using keyboard controls', async ({ page }) => {
+  await page.goto('/entrar');
+  await keyboardActivate(page, page.getByRole('button', { name: 'Iniciar demonstração privada' }));
+  await page.waitForURL('**/conferencias');
+  await keyboardActivate(page, page.getByRole('link', { name: 'Pedidos avulsos — maio', exact: true }));
+  await page.waitForURL(/\/conferencias\/[a-f0-9-]+$/);
+  for (const kind of ['orders', 'payouts'] as const) {
+    await keyboardActivate(page, page.locator(`a[href$="/fontes/${kind}/preview"]`).first());
+    await page.waitForURL(`**/fontes/${kind}/preview`);
+    const csv = await page.request.get(`/exemplos/${kind}.csv`);
+    const chooser = page.waitForEvent('filechooser');
+    await keyboardActivate(page, page.locator('input[type=file]'));
+    await (await chooser).setFiles({ name: `${kind}-exemplo.csv`, mimeType: 'text/csv', buffer: await csv.body() });
+    await keyboardActivate(page, page.getByRole('button', { name: /Gerar prévia/i }));
+    await keyboardActivate(page, page.getByRole('button', { name: /Confirmar importação/i }));
+    await page.waitForURL(/\/conferencias\/[a-f0-9-]+$/);
+  }
+  await keyboardActivate(page, page.getByRole('button', { name: 'Executar conciliação', exact: true }));
+  await page.waitForURL(/\/execucoes\/[a-f0-9-]+$/);
+  await keyboardActivate(page, page.getByRole('row').filter({ hasText: '0002' }).getByRole('button', { name: 'Examinar', exact: true }));
+  await tabTo(page, page.getByLabel('Nota da análise'));
+  await page.keyboard.type('Conferido por teclado com a origem.');
+  await keyboardActivate(page, page.getByRole('button', { name: 'Salvar revisão', exact: true }));
+  await expect(page.locator('.divergence-strip')).toContainText('1 de 3 divergências revisadas');
+  const download = page.waitForEvent('download');
+  await keyboardActivate(page, page.getByRole('link', { name: 'Exportar CSV', exact: true }));
+  const exported = await download;
+  expect(await fs.readFile((await exported.path())!, 'utf8')).toContain('Conferido por teclado com a origem.');
+});
 
 test('keyboard entry and reset dialog keep focus and Escape returns to the trigger', async ({ page }) => {
   await page.goto('/entrar');
