@@ -2,9 +2,9 @@
 
 - Repositório público: https://github.com/Diogopbr/lastro, branch `main`.
 - Demonstração: https://lastro-red.vercel.app.
-- CI: https://github.com/Diogopbr/lastro/actions/runs/38326609233,
-  success em `9e2814e8a2a482e91770c4b88e07625e184d6253`.
-- Deployment verificado: `dpl_741zNwfadAmFRcwTEJrHYsoSeYRh`, Ready,
+- CI final: https://github.com/Diogopbr/lastro/actions/runs/38443107933,
+  success em `3213843d4ea1d3639ee6a8400c527a920ac8f8a8`.
+- Deployment verificado: `dpl_2Jc6jKKCH4bKhuUo77ggtg4rhCPy`, Ready,
   container de216,45MB emgru1. GitHub conectado ao projeto Vercel `lastro`.
 - Neon Free independente, role de runtime sem superuser/criação de objetos,
   TLS verify-full. Nenhum plano pago contratado nesta entrega.
@@ -13,7 +13,7 @@
 
 Verificação completa passou: 284 testes PHP/1319 assertions em PostgreSQL real,
 36 frontend em16 suítes, typecheck/build/Composer/Pint/diff e4 E2E.
-No CI Linux:284PHP/1319assertions,36frontend e4E2E em9,1s.
+No CI Linux final:284PHP/1319assertions,36frontend e5E2E em14,3s.
 Após corrigir o host explícito do teste de ingress e preparar `.env.example`
 no CI, a suíte PHP não apresentou os111warnings da primeira execução.
 
@@ -32,15 +32,16 @@ Prova adicional em contexto privado próprio: cookies `lastro_visitor` e
 `lastro_session` ambos Secure/HttpOnly/SameSiteLax; CSRF inválido419.
 `/.env`, `/vendor/autoload.php`, `/storage/logs/laravel.log` e
 `/docs/contracts/http.md` retornaram404. Nenhum pageerror registrado.
-Foi criada uma conferência fictícia e guardado o contexto privado para verificar
-sessão/dados após o deploy seguinte; essa checagem será registrada ao concluir.
+Foi criada uma conferência fictícia e guardado o contexto privado. Após o deploy
+seguinte, o mesmo contexto acessou a conferência com200 e seu nome original,
+sem novo login/start; sessão e dados persistiram, sem pageerror.
 
 Quinto cenário acrescentado ao final: fluxo sem clicks/fill, usando Tab/Enter
 para abrir a conferência vazia, selecionar fontes, gerar prévia, confirmar,
 conciliar, selecionar0002, digitar nota, salvar e baixar. O diálogo nativo de
 arquivo é aberto pelo teclado e recebe o CSV pela API FileChooser da automação.
 Passou local em7,3s e no domínio público em16,8s; os quatro testes anteriores
-passaram em lote separado. A próxima CI executará os cinco juntos.
+passaram em lote separado. A CI final executou os cinco juntos e passou.
 
 ## Revisão e limites da evidência
 

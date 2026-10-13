@@ -118,12 +118,14 @@ frontend** e **5 cenários Playwright**. Disputas usam processos/conexões
 independentes e bloqueio observado no PostgreSQL; há controle negativo da quota.
 Sessão/CSRF foram testados em duas instâncias HTTP separadas. Evidências em
 [progresso](docs/evidence/progress.md) e relatórios de tarefas.
-CI Linux passou no commit `9e2814e`. Os quatro cenários também passaram no
+CI Linux passou no commit `3213843`, com os cinco cenários juntos. Os quatro cenários iniciais também passaram no
 domínio público, em50,8s. Sessão e visitante usam cookies Secure/HttpOnly/Lax;
 CSRF inválido retorna419, e caminhos privados retornam404.
 O quinto cenário percorreu importação, conciliação, revisão e download por
 Tab/Enter, em execução adicional:7,3s local e16,8s no domínio público. A seleção
 do arquivo usa a automação do diálogo nativo, aberto pelo teclado.
+Sessão e conferência foram preservadas após novo deploy, com `APP_KEY` estável
+e persistência em PostgreSQL.
 
 ## Limites da demonstração e do formato
 

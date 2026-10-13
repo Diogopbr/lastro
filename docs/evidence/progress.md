@@ -133,3 +133,13 @@ Nova verificação completa: **283 PHP /1315 assertions**, **36 frontend /16suí
 entrada via Tab/Enter e trap/Escape/retorno de foco no reset; não declara toda a
 importação/revisão por teclado. Treze estados reais recapturados com scroll0
 mantiveram zero violações axe, zero overflow e zero pageerror.
+
+## Publicação verificada — 13/10/2026
+
+Lastro público no GitHub/Vercel; evidências finais em publication.md. Correção
+PDO para pool transacional reproduzida RED25P02/GREEN transação utilizável no
+próprio Neon com consultas de leitura e TLS verify-full. Nova suite284PHP/1319,
+36frontend; CI final3213843 success e5E2E14,3s. Domínio público:4fluxos50,8s e
+quinto por teclado16,8s; cookies Secure/HttpOnly/Lax, CSRF419, privados404.
+Sessão e conferência sobreviveram a redeploy. Rascunho LinkedIn salvo, não postado.
+Usuário encerrou Antigravity/Copilot; execução nova fica somente com Codex.
