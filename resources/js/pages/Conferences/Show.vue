@@ -558,9 +558,8 @@ async function handleReconcile() {
   flex-wrap: wrap;
   gap: 1rem;
   background-color: var(--color-page);
-  border: 1px solid var(--color-border-subtle);
+  border-top: 1px solid var(--color-border-subtle);
   padding: 0.875rem 1rem;
-  border-radius: var(--radius);
 }
 
 .run-stats {

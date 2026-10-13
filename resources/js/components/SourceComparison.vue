@@ -91,7 +91,7 @@ const classificationClass = computed(() => {
           <div class="field-row">
             <span class="field-label">Hash SHA256</span>
             <span class="field-value hash-code tabular-nums" :title="result.order.normalizedHash">
-              {{ result.order.normalizedHash.slice(0, 12) }}…
+              {{ result.order.normalizedHash }}
             </span>
           </div>
         </div>
@@ -137,7 +137,7 @@ const classificationClass = computed(() => {
           <div class="field-row">
             <span class="field-label">Hash SHA256</span>
             <span class="field-value hash-code tabular-nums" :title="result.payout.normalizedHash">
-              {{ result.payout.normalizedHash.slice(0, 12) }}…
+              {{ result.payout.normalizedHash }}
             </span>
           </div>
         </div>
@@ -293,6 +293,7 @@ const classificationClass = computed(() => {
 }
 
 .field-value {
+  min-width: 0;
   color: var(--color-ink);
   text-align: right;
   word-break: break-all;
@@ -309,10 +310,8 @@ const classificationClass = computed(() => {
 }
 
 .file-name {
-  max-width: 14rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 /* Mobile 390px — Comparação empilhada e rotulada SEM rolagem horizontal */
@@ -326,8 +325,5 @@ const classificationClass = computed(() => {
     border-bottom: 1px solid var(--color-border);
   }
 
-  .file-name {
-    max-width: 10rem;
-  }
 }
 </style>

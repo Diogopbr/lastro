@@ -152,7 +152,7 @@ async function handleReload() {
             :disabled="isSubmitting"
             @click="submitReview(true)"
           >
-            Salvar e ir para próxima
+            Salvar e próxima desta página
           </button>
         </div>
       </div>

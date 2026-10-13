@@ -14,8 +14,9 @@ Implementação local verificada; publicação e CI remoto ainda em andamento.
 
 ## O percurso
 
-1. Inicie a demonstração privada. Os três exemplos mostram correspondência
-   exata, diferença de valor e registros sem correspondência.
+1. Inicie a demonstração privada. Dois exemplos mostram correspondência
+   exata, diferença de valor e registros sem correspondência; o terceiro
+   aguarda importação para você experimentar o percurso desde o início.
 2. Crie uma conferência para 01/05/2026–31/05/2026 e baixe os exemplos CSV.
 3. Importe pedidos e repasses. A prévia localiza erros por linha/campo; só um
    lote válido pode ser confirmado. A primeira fonte fecha o período.
@@ -108,8 +109,8 @@ validate/check-platform-reqs, Pint, PHPUnit, typecheck, Vitest, build e Playwrig
 A [CI](.github/workflows/ci.yml) prepara banco com role sem superuser, instala
 dos locks e percorre o mesmo caminho. Rodar localmente não declara CI remoto.
 
-Verificado em 12/10/2026: **283 testes PHP / 1.313 assertions**, **34 testes
-frontend** e **3 cenários Playwright**. Disputas usam processos/conexões
+Verificado em 12/10/2026: **283 testes PHP / 1.315 assertions**, **36 testes
+frontend** e **4 cenários Playwright**. Disputas usam processos/conexões
 independentes e bloqueio observado no PostgreSQL; há controle negativo da quota.
 Sessão/CSRF foram testados em duas instâncias HTTP separadas. Evidências em
 [progresso](docs/evidence/progress.md) e relatórios de tarefas.

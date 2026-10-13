@@ -81,6 +81,23 @@ describe('Runs/Show - Atualizacao de resumo por GET /execucoes/:id e recarga por
     ],
   };
 
+  it('uses fresh server summary when Inertia preserves the component during navigation', async () => {
+    const wrapper = mount(RunsShow, { props: { conference: mockConference, run: initialRun, results: mockResults, filters: { page: 1, pageSize: 10 } } });
+    await wrapper.setProps({ run: { ...initialRun, summary: { ...initialRun.summary, reviewed: 1 } } });
+    expect(wrapper.text()).toContain('1 de 2 divergências revisadas');
+  });
+
+  it('refreshes global progress when recovering the version changed in another tab', async () => {
+    const spy = vi.spyOn(apiModule, 'apiFetch').mockImplementation(async url => url === '/resultados/res-1'
+      ? { ...mockResults.items[0], version: 2, reviewStatus: 'reviewed' }
+      : { run: { ...initialRun, summary: { ...initialRun.summary, reviewed: 1 } } });
+    const wrapper = mount(RunsShow, { props: { conference: mockConference, run: initialRun, results: mockResults, filters: { page: 1, pageSize: 10 } } });
+    wrapper.findComponent({ name: 'ReviewPanel' }).vm.$emit('reload-requested');
+    await flushPromises();
+    expect(wrapper.text()).toContain('1 de 2 divergências revisadas');
+    spy.mockRestore();
+  });
+
   it('reports failed summary and version reload instead of silently presenting stale data', async () => {
     const apiFetchSpy = vi.spyOn(apiModule, 'apiFetch').mockRejectedValue(new Error('Network unavailable'));
     const wrapper = mount(RunsShow, { props: { conference: mockConference, run: initialRun, results: mockResults, filters: { page: 1, pageSize: 10 } } });

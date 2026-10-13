@@ -22,7 +22,7 @@ describe('SourceComparison - Pedido ausente', () => {
         fee: '15.00',
         net: '335.00',
         sourceId: 'src-payouts-1',
-        normalizedHash: 'abc123hash',
+        normalizedHash: 'a'.repeat(64),
         displayFilename: 'repasses-outubro.csv',
       },
       reviewEvents: [],
@@ -46,5 +46,7 @@ describe('SourceComparison - Pedido ausente', () => {
     // Difference must be null/empty/dash, not R$ 0,00
     const diffSection = wrapper.find('[data-test="difference-value"]');
     expect(diffSection.text()).not.toContain('R$ 0,00');
+    // A touch/keyboard user can read the complete origin without a hover title.
+    expect(wrapper.find('.hash-code').text()).toBe('a'.repeat(64));
   });
 });

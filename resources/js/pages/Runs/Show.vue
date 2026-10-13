@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '../../layouts/AppLayout.vue';
 import SourceComparison from '../../components/SourceComparison.vue';
@@ -36,6 +36,11 @@ const searchQuery = ref<string>(props.filters.search || '');
 // Estado reativo da execução para atualização do resumo de auditoria
 const currentRun = ref<RunProjection>(props.run);
 let runSummarySeq = 0;
+watch(() => props.run, (run) => {
+  ++runSummarySeq;
+  currentRun.value = run;
+  summaryError.value = null;
+});
 
 // Lista de resultados local para permitir atualizações instantâneas de revisão sem perder totais
 const localResults = ref<ResultProjection[]>(props.results.items);
@@ -172,6 +177,7 @@ async function handleReloadResult() {
       if (index !== -1) {
         localResults.value[index] = updatedResult;
       }
+      await refreshRunSummary();
     }
   } catch {
     if (selectedResultId.value === requestedId) reloadError.value = 'Não foi possível carregar a versão atual. Sua nota foi mantida. Tente novamente ou volte à entrada se o ambiente expirou.';
@@ -728,11 +734,12 @@ async function handleReloadResult() {
     text-align: left;
     color: var(--color-ink);
     background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    border: 0;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
     overflow-wrap: anywhere;
   }
-  .result-record[aria-pressed="true"] { background: var(--color-page); border-color: var(--color-ink); }
+  .result-record[aria-pressed="true"] { background: var(--color-page); outline: 1px solid var(--color-ink); outline-offset: -1px; }
   .record-action { font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; }
   .pagination-bar { flex-wrap: wrap; gap: 0.75rem; }
 }

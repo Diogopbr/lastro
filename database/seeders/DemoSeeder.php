@@ -19,7 +19,7 @@ final class DemoSeeder
     {
         foreach (['marketplace' => 'Marketplace — maio', 'store' => 'Loja online — maio', 'loose' => 'Pedidos avulsos — maio'] as $scenario => $name) {
             $conference = $this->createConference->execute($scope, $name, '2026-05-01', '2026-05-31');
-            if (! config('lastro.demo_examples')) {
+            if (! config('lastro.demo_examples') || $scenario === 'loose') {
                 continue;
             }
             $version = $conference['version'];

@@ -111,3 +111,25 @@ Hospedagem preparada: projeto Vercel Lastro e Neon Free separados, migrations
 aplicadas com TLS verificado, role limitada e APP_KEY próprio por stdin.
 Não houve deploy, GitHub público ou CI remoto do Lastro até esta verificação.
 Revisão independente e validação hospedada continuam como gates de publicação.
+
+## Fechamento da revisão independente — 12/10/2026
+
+A revisão estática inteira encontrou um resumo antigo após filtro/paginação
+ou recuperação de conflito em outra aba. Dois testes reproduziram o contador
+antigo; a correção sincroniza novas props e invalida respostas de resumo antigas.
+Carregar a versão atual também atualiza o andamento. A reinspeção marcou o
+achado importante resolvido. A ação sequencial foi delimitada explicitamente
+como “Salvar e próxima desta página”. O terceiro exemplo agora aguarda importação,
+como previsto no design: quatro fontes, duas execuções e seis resultados reais,
+mais uma conferência sem fontes. Idempotência, reset e coleta foram revalidados.
+
+A revisão visual pediu origem completa acessível, nova captura do Buscar em390px
+e redução das molduras internas. Hashes completos e nomes quebráveis dispensam
+hover; registros e prévia mobile usam regras. O veredicto do lote marcou os três
+fixes resolvidos (`ship` nesse escopo), sem alegar aprovação integral de runtime.
+
+Nova verificação completa: **283 PHP /1315 assertions**, **36 frontend /16suítes**,
+**4 E2E em14,1s**, Composer/Pint/typecheck/build/diff passaram. O quarto E2E prova
+entrada via Tab/Enter e trap/Escape/retorno de foco no reset; não declara toda a
+importação/revisão por teclado. Treze estados reais recapturados com scroll0
+mantiveram zero violações axe, zero overflow e zero pageerror.

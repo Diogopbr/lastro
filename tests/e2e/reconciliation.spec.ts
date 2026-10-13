@@ -32,6 +32,33 @@ async function accessible(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(await page.evaluate(() => innerWidth));
 }
 
+test('keyboard entry and reset dialog keep focus and Escape returns to the trigger', async ({ page }) => {
+  await page.goto('/entrar');
+  const start = page.getByRole('button', { name: 'Iniciar demonstração privada' });
+  for (let step = 0; step < 12 && !(await start.evaluate(el => el === document.activeElement)); step++) {
+    await page.keyboard.press('Tab');
+  }
+  await expect(start).toBeFocused();
+  await page.keyboard.press('Enter');
+  await page.waitForURL('**/conferencias');
+  const reset = page.getByRole('button', { name: 'Reiniciar dados', exact: true });
+  for (let step = 0; step < 16 && !(await reset.evaluate(el => el === document.activeElement)); step++) {
+    await page.keyboard.press('Tab');
+  }
+  await expect(reset).toBeFocused();
+  await page.keyboard.press('Enter');
+  const cancel = page.getByRole('button', { name: 'Cancelar', exact: true });
+  const confirm = page.getByRole('button', { name: 'Sim, reiniciar dados', exact: true });
+  await expect(cancel).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(confirm).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(cancel).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(reset).toBeFocused();
+});
+
 test('imports real CSVs, reviews and reopens a divergence, exports every result and reloads', async ({ page }) => {
   await startDemo(page);
   await createConference(page);
@@ -93,7 +120,7 @@ test('invalid preview keeps the source absent and allows a corrected file on mob
 test('two visitors are isolated and reset invalidates a page in another tab', async ({ page, browser }) => {
   await startDemo(page);
   const listing = await page.request.get('/conferencias', { headers: { Accept: 'application/json' } });
-  const first = (await listing.json()).conferences[0];
+  const first = (await listing.json()).conferences.find((conference: { run: unknown }) => conference.run);
   const other = await browser.newContext({ baseURL: new URL(page.url()).origin });
   try {
     const otherPage = await other.newPage();

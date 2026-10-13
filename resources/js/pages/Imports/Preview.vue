@@ -516,8 +516,7 @@ async function handleStartNewDemo() {
 
   .mobile-record-card {
     background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    border-top: 1px solid var(--color-border);
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
   }
