@@ -1,4 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": ["gru1"]
+  "regions": ["gru1"],
+  "services": {
+    "lastro": { "root": ".", "entrypoint": "Dockerfile.vercel" }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": { "service": "lastro" } }
+  ]
 }

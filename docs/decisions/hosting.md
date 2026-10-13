@@ -4,6 +4,12 @@ Escolha autorizada: Vercel Container Runtime, Laravel/PHP servido por FrankenPHP
 em modo clássico e assets Vue no mesmo domínio, PostgreSQL separado do Bancada.
 Sem contratação paga automática. Dockerfile preparado não equivale a deploy.
 
+O primeiro deploy detectou o package.json/Vite na raiz e procurou `dist`, sem
+construir o container. A configuração agora declara o serviço `lastro` com
+entrypoint `Dockerfile.vercel` e rewrite de todo o tráfego para ele, conforme
+a configuração oficial de Services. O segundo build efetivamente iniciou
+Buildah e o registro VCR; publicação continua condicionada ao runtime real.
+
 Em10/10/2026 os manifests oficiais do Docker Registry foram consultados via HEAD
 autenticado com token público de pull, sem gravar/expor token. Imagens fixadas:
 
