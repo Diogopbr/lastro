@@ -1,6 +1,6 @@
 # HTTP — Lastro
 
-Contrato de implementação aprovado no plano. A existência de uma rota neste documento não declara que ela já foi entregue; o estado real está em docs/evidence/progress.md.
+Contrato HTTP da aplicação. As verificações de execução e publicação estão documentadas em docs/evidence/publication.md.
 
 Aplicação Laravel/Vue/Inertia no mesmo domínio. Páginas recebem props do servidor; chamadas com Accept: application/json recebem JSON. Cookies de sessão HttpOnly; em produção Secure. Nenhum workspace recebido por campo do navegador autoriza a operação. GET /csrf retorna {token}; obter token fresco antes de cada mutação e enviar X-CSRF-TOKEN. Não isentar mutações de CSRF.
 
