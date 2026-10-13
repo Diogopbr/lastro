@@ -5,10 +5,16 @@ import type { SharedProps } from '../core/contracts';
 import DemoControls from '../components/DemoControls.vue';
 import { apiFetch } from '../core/api';
 
-defineProps<{
-  title?: string;
-  breadcrumbs?: Array<{ label: string; href?: string }>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    title?: string;
+    breadcrumbs?: Array<{ label: string; href?: string }>;
+    isEntryPage?: boolean;
+  }>(),
+  {
+    isEntryPage: false,
+  }
+);
 
 const page = usePage<SharedProps>();
 const auth = computed(() => {
@@ -33,6 +39,10 @@ const currentUrl = computed(() => {
   }
 });
 
+const isEntry = computed(() => {
+  return props.isEntryPage || currentUrl.value === '/entrar' || currentUrl.value.startsWith('/entrar?') || currentUrl.value === '';
+});
+
 const isLoggingOut = ref(false);
 
 async function handleLogout() {
@@ -51,7 +61,9 @@ async function handleLogout() {
 
 <template>
   <div class="app-shell">
-    <Head :title="title ? `${title} — Lastro` : 'Lastro'" />
+    <Head :title="title ? `${title} — Lastro` : 'Lastro'">
+      <meta name="lastro-workspace" :content="auth?.workspace?.id || ''" />
+    </Head>
 
     <!-- Acessibilidade: Pular para conteúdo principal -->
     <a href="#main-content" class="sr-only focus-skip">Pular para o conteúdo principal</a>
@@ -65,7 +77,8 @@ async function handleLogout() {
             <span class="brand-tagline">Conferência de pedidos e repasses</span>
           </Link>
 
-          <nav class="nav-links" aria-label="Navegação principal">
+          <!-- Navegação principal apenas quando autenticado / fora da tela de entrada -->
+          <nav v-if="!isEntry" class="nav-links" aria-label="Navegação principal">
             <Link
               href="/conferencias"
               class="nav-link"
@@ -76,7 +89,8 @@ async function handleLogout() {
           </nav>
         </div>
 
-        <div class="nav-right">
+        <!-- Ações do cabeçalho apenas quando fora da tela de entrada -->
+        <div v-if="!isEntry" class="nav-right">
           <!-- Controles de Demonstração -->
           <DemoControls
             :workspace="auth?.workspace || null"
@@ -316,11 +330,41 @@ async function handleLogout() {
 
 @media (max-width: 640px) {
   .nav-container {
-    padding: 0.625rem 1rem;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+  }
+  .nav-left {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  .nav-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  .user-access {
+    border-left: none;
+    padding-left: 0;
+    margin-left: auto;
+  }
+  .breadcrumbs-bar {
+    padding: 0.375rem 0.75rem;
+  }
+  .breadcrumbs-list {
+    flex-wrap: wrap;
+    word-break: break-word;
   }
   .main-viewport {
-    padding: 1rem 1rem 2rem 1rem;
+    padding: 1rem 0.75rem 2rem 0.75rem;
   }
 }
 </style>

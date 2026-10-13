@@ -107,6 +107,7 @@ h1, h2, h3, h4 {
   text-decoration: none;
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .btn:disabled {
@@ -314,5 +315,13 @@ h1, h2, h3, h4 {
 @media (max-width: 640px) {
   body {
     font-size: 14px;
+  }
+  .btn {
+    white-space: normal;
+    text-align: center;
+    word-break: break-word;
+  }
+  .table-container {
+    max-width: 100%;
   }
 }

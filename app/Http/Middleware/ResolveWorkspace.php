@@ -32,6 +32,13 @@ class ResolveWorkspace
         if ($workspace === null) {
             abort(404);
         }
+        $expectedWorkspace = $request->header('X-Lastro-Workspace');
+        if (is_string($expectedWorkspace) && $expectedWorkspace !== $workspace->id) {
+            if ($request->expectsJson()) {
+                return response()->json(['code' => 'not_found', 'message' => 'Esta página não corresponde ao ambiente atual. Atualize antes de salvar.'], 404);
+            }
+            abort(404);
+        }
         $request->attributes->set('workspace', new CurrentWorkspace($workspace->id, $workspace->expires_at, $workspace->kind, $user->id));
 
         return $next($request);

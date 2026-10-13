@@ -33,8 +33,14 @@ const selectedClassification = ref<Classification | ''>(props.filters.classifica
 const selectedReviewStatus = ref<ReviewStatus | ''>(props.filters.reviewStatus || '');
 const searchQuery = ref<string>(props.filters.search || '');
 
+// Estado reativo da execução para atualização do resumo de auditoria
+const currentRun = ref<RunProjection>(props.run);
+let runSummarySeq = 0;
+
 // Lista de resultados local para permitir atualizações instantâneas de revisão sem perder totais
 const localResults = ref<ResultProjection[]>(props.results.items);
+const summaryError = ref<string | null>(null);
+const reloadError = ref<string | null>(null);
 const selectedResultId = ref<string | null>(
   props.results.items.length > 0 ? props.results.items[0].id : null
 );
@@ -57,6 +63,7 @@ const nextPendingIndex = computed(() => {
 const hasNextPending = computed(() => nextPendingIndex.value !== -1);
 
 function selectResult(result: ResultProjection) {
+  reloadError.value = null;
   selectedResultId.value = result.id;
 }
 
@@ -110,31 +117,64 @@ function goToPage(pageNumber: number) {
   );
 }
 
-// Atualização de revisão persistida com sucesso
-function handleReviewSaved(updatedResult: ResultProjection) {
+async function refreshRunSummary() {
+  const seq = ++runSummarySeq;
+  try {
+    const data = await apiFetch<{
+      conference: ConferenceProjection;
+      run: RunProjection;
+      results: PageOfResults;
+      filters: unknown;
+    }>(`/execucoes/${props.run.id}`);
+
+    // Protege respostas antigas por sequência
+    if (seq === runSummarySeq && data?.run) {
+      currentRun.value = data.run;
+      summaryError.value = null;
+    }
+  } catch {
+    if (seq === runSummarySeq) summaryError.value = 'Não foi possível atualizar o resumo. A revisão foi salva; tente carregar o andamento novamente.';
+  }
+}
+
+// Atualização de revisão persistida com sucesso: atualiza item local e recarrega resumo da execução
+async function handleReviewSaved(updatedResult: ResultProjection) {
   const index = localResults.value.findIndex((r) => r.id === updatedResult.id);
   if (index !== -1) {
     localResults.value[index] = updatedResult;
   }
+  await refreshRunSummary();
 }
 
 // Salva e avança para a próxima pendente
 function handleSaveAndNext(updatedResult: ResultProjection) {
+  const currentId = selectedResultId.value;
   handleReviewSaved(updatedResult);
-  if (nextPendingIndex.value !== -1) {
+
+  // Se o usuário já selecionou outro resultado enquanto o request anterior concluía,
+  // não altera a seleção do usuário
+  if (currentId === updatedResult.id && nextPendingIndex.value !== -1) {
     selectedResultId.value = localResults.value[nextPendingIndex.value].id;
   }
 }
 
+// Recarrega o resultado isolado selecionado via GET /resultados/:id preservando a seleção e nota
 async function handleReloadResult() {
   if (!selectedResultId.value) return;
+  const requestedId = selectedResultId.value;
+  reloadError.value = null;
   try {
-    const updatedPage = await apiFetch<PageOfResults>(
-      `/execucoes/${props.run.id}/resultados?page=${props.results.page}&pageSize=${props.results.pageSize}`
+    const updatedResult = await apiFetch<ResultProjection>(
+      `/resultados/${requestedId}`
     );
-    localResults.value = updatedPage.items;
+    if (updatedResult?.id) {
+      const index = localResults.value.findIndex((r) => r.id === updatedResult.id);
+      if (index !== -1) {
+        localResults.value[index] = updatedResult;
+      }
+    }
   } catch {
-    // Falha silenciosa ou reconexão
+    if (selectedResultId.value === requestedId) reloadError.value = 'Não foi possível carregar a versão atual. Sua nota foi mantida. Tente novamente ou volte à entrada se o ambiente expirou.';
   }
 }
 </script>
@@ -160,7 +200,7 @@ async function handleReloadResult() {
 
         <div class="header-actions">
           <a
-            :href="`/execucoes/${run.id}/exportar`"
+            :href="`/execucoes/${currentRun.id}/exportar`"
             class="btn btn-secondary"
             download
           >
@@ -168,60 +208,64 @@ async function handleReloadResult() {
           </a>
         </div>
       </header>
+      <div v-if="summaryError" class="form-error" role="alert">
+        <p>{{ summaryError }}</p>
+        <button type="button" class="btn btn-secondary" @click="refreshRunSummary">Atualizar resumo</button>
+      </div>
 
       <!-- Painel de Totais Globais do Servidor (Preservados mesmo com filtros) -->
       <section class="summary-section">
         <div class="summary-grid">
           <div class="summary-card">
-            <span class="summary-label">Pedidos faturados (bruto)</span>
-            <span class="summary-val tabular-nums">{{ formatMoney(run.summary.orderGross) }}</span>
-            <span class="summary-sub tabular-nums">{{ (run.summary.counts.matched || 0) + (run.summary.counts.amountMismatch || 0) + (run.summary.counts.missingPayout || 0) }} registros</span>
+            <span class="summary-label">Bruto dos pedidos</span>
+            <span class="summary-val tabular-nums">{{ formatMoney(currentRun.summary.orderGross) }}</span>
+            <span class="summary-sub tabular-nums">{{ (currentRun.summary.counts.matched || 0) + (currentRun.summary.counts.amountMismatch || 0) + (currentRun.summary.counts.missingPayout || 0) }} registros</span>
           </div>
 
           <div class="summary-card">
-            <span class="summary-label">Repasses informados (bruto)</span>
-            <span class="summary-val tabular-nums">{{ formatMoney(run.summary.payoutGross) }}</span>
-            <span class="summary-sub tabular-nums">{{ (run.summary.counts.matched || 0) + (run.summary.counts.amountMismatch || 0) + (run.summary.counts.missingOrder || 0) }} registros</span>
+            <span class="summary-label">Bruto dos repasses</span>
+            <span class="summary-val tabular-nums">{{ formatMoney(currentRun.summary.payoutGross) }}</span>
+            <span class="summary-sub tabular-nums">{{ (currentRun.summary.counts.matched || 0) + (currentRun.summary.counts.amountMismatch || 0) + (currentRun.summary.counts.missingOrder || 0) }} registros</span>
           </div>
 
           <div class="summary-card">
-            <span class="summary-label">Tarifas intermediador</span>
-            <span class="summary-val tabular-nums text-muted">{{ formatMoney(run.summary.fees) }}</span>
-            <span class="summary-sub">Retenção de intermediação</span>
+            <span class="summary-label">Taxas informadas</span>
+            <span class="summary-val tabular-nums text-muted">{{ formatMoney(currentRun.summary.fees) }}</span>
+            <span class="summary-sub">Informadas no CSV de repasses</span>
           </div>
 
           <div class="summary-card">
-            <span class="summary-label">Valor líquido apurado</span>
-            <span class="summary-val tabular-nums font-semibold">{{ formatMoney(run.summary.net) }}</span>
-            <span class="summary-sub">Depósito esperado</span>
+            <span class="summary-label">Líquido informado</span>
+            <span class="summary-val tabular-nums font-semibold">{{ formatMoney(currentRun.summary.net) }}</span>
+            <span class="summary-sub">Informado no CSV de repasses</span>
           </div>
         </div>
 
         <div class="divergence-strip">
           <div class="strip-item">
             <span class="strip-label">Correspondências exatas:</span>
-            <strong class="tabular-nums text-matched">{{ run.summary.counts.matched || 0 }}</strong>
+            <strong class="tabular-nums text-matched">{{ currentRun.summary.counts.matched || 0 }}</strong>
           </div>
           <div class="strip-sep">·</div>
           <div class="strip-item">
             <span class="strip-label">Divergências de valor:</span>
-            <strong class="tabular-nums text-copper">{{ run.summary.counts.amountMismatch || 0 }}</strong>
+            <strong class="tabular-nums text-copper">{{ currentRun.summary.counts.amountMismatch || 0 }}</strong>
           </div>
           <div class="strip-sep">·</div>
           <div class="strip-item">
             <span class="strip-label">Repasses ausentes:</span>
-            <strong class="tabular-nums text-copper">{{ run.summary.counts.missingPayout || 0 }}</strong>
+            <strong class="tabular-nums text-copper">{{ currentRun.summary.counts.missingPayout || 0 }}</strong>
           </div>
           <div class="strip-sep">·</div>
           <div class="strip-item">
             <span class="strip-label">Pedidos ausentes:</span>
-            <strong class="tabular-nums text-copper">{{ run.summary.counts.missingOrder || 0 }}</strong>
+            <strong class="tabular-nums text-copper">{{ currentRun.summary.counts.missingOrder || 0 }}</strong>
           </div>
           <div class="strip-sep">·</div>
           <div class="strip-item">
             <span class="strip-label">Auditoria:</span>
             <span class="tabular-nums font-semibold">
-              {{ run.summary.reviewed }} de {{ run.summary.divergences }} divergências revisadas
+              {{ currentRun.summary.reviewed }} de {{ currentRun.summary.divergences }} divergências revisadas
             </span>
           </div>
         </div>
@@ -283,7 +327,7 @@ async function handleReloadResult() {
       <div class="results-layout">
         <!-- Coluna Esquerda: Tabela de Resultados -->
         <div class="table-column">
-          <div class="table-container">
+          <div class="table-container result-table-desktop">
             <table class="editorial-table">
               <thead>
                 <tr>
@@ -355,6 +399,18 @@ async function handleReloadResult() {
               </tbody>
             </table>
           </div>
+          <ul class="result-records-mobile" aria-label="Resultados da conciliação">
+            <li v-for="item in localResults" :key="item.id">
+              <button type="button" class="result-record" :aria-pressed="item.id === selectedResultId" @click="selectResult(item)">
+                <strong>Pedido {{ item.orderId }}</strong>
+                <span>{{ classificationLabel(item.classification) }}</span>
+                <span>Diferença: {{ item.difference === null ? 'Não se aplica' : formatMoney(item.difference) }}</span>
+                <span>Revisão: {{ item.reviewStatus === null ? 'Não se aplica' : reviewStatusLabel(item.reviewStatus) }}</span>
+                <span class="record-action">{{ item.id === selectedResultId ? 'Registro selecionado' : 'Examinar registro' }}</span>
+              </button>
+            </li>
+            <li v-if="localResults.length === 0" class="empty-results-cell">Nenhum resultado corresponde aos filtros selecionados.</li>
+          </ul>
 
           <!-- Paginação Simples -->
           <div v-if="results.total > results.pageSize" class="pagination-bar">
@@ -384,12 +440,18 @@ async function handleReloadResult() {
 
         <!-- Coluna Direita: Comparação de Origem e Painel de Revisão -->
         <div class="detail-column">
+          <div v-if="reloadError" class="form-error" role="alert">
+            <p>{{ reloadError }}</p>
+            <button type="button" class="btn btn-secondary" @click="handleReloadResult">Recarregar versão</button>
+            <a href="/entrar" class="btn btn-secondary">Voltar à entrada</a>
+          </div>
           <template v-if="currentSelectedResult">
             <!-- Comparação Pedido vs Repasse -->
             <SourceComparison :result="currentSelectedResult" />
 
             <!-- Painel de Revisão e Auditoria -->
             <ReviewPanel
+              :key="currentSelectedResult.id"
               :result="currentSelectedResult"
               :expected-version="currentSelectedResult.version"
               :has-next-pending="hasNextPending"
@@ -450,10 +512,8 @@ async function handleReloadResult() {
 }
 
 .summary-card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.5rem 0 0.875rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -554,18 +614,19 @@ async function handleReloadResult() {
 /* Grade de Resultados e Detalhes */
 .results-layout {
   display: grid;
-  grid-template-columns: 1.1fr 1.3fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
   gap: 1.5rem;
   align-items: start;
 }
 
 @media (max-width: 1024px) {
   .results-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 .table-column {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -618,6 +679,7 @@ async function handleReloadResult() {
 }
 
 .detail-column {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -639,5 +701,39 @@ async function handleReloadResult() {
 
 .text-muted {
   color: var(--color-muted);
+}
+
+.result-records-mobile {
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .strip-item { flex-wrap: wrap; }
+  .filter-item, .search-item { min-width: 0; width: 100%; }
+  .search-input-wrap .input-text { min-width: 0; }
+  .btn-search { flex-shrink: 0; white-space: nowrap; }
+  .result-table-desktop { display: none; }
+  .result-records-mobile { display: grid; gap: 0.5rem; }
+  .result-record {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 100%;
+    padding: 0.875rem;
+    font: inherit;
+    text-align: left;
+    color: var(--color-ink);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow-wrap: anywhere;
+  }
+  .result-record[aria-pressed="true"] { background: var(--color-page); border-color: var(--color-ink); }
+  .record-action { font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; }
+  .pagination-bar { flex-wrap: wrap; gap: 0.75rem; }
 }
 </style>

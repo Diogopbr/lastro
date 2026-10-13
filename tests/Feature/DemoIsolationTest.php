@@ -35,6 +35,20 @@ class DemoIsolationTest extends TestCase
         $this->assertSame(1, DB::table('workspaces')->count());
     }
 
+    public function test_old_page_cannot_create_in_the_replacement_generation_with_a_fresh_cookie(): void
+    {
+        $demo = app(DemoWorkspace::class);
+        $token = str_repeat('c', 64);
+        $old = $demo->start($token);
+        $new = $demo->reset(new CurrentWorkspace($old->workspace_id, null, 'demo', $old->id), $token, '127.0.0.28');
+        $this->actingAs($new);
+        $input = ['name' => 'Rascunho de maio', 'startDate' => '2026-05-01', 'endDate' => '2026-05-31'];
+        $this->postJson('/conferencias', $input, ['X-Lastro-Workspace' => $old->workspace_id])->assertNotFound();
+        $this->assertSame(3, DB::table('conferences')->where('workspace_id', $new->workspace_id)->count());
+        $this->postJson('/conferencias', $input, ['X-Lastro-Workspace' => $new->workspace_id])->assertCreated();
+        $this->assertSame(4, DB::table('conferences')->where('workspace_id', $new->workspace_id)->count());
+    }
+
     public function test_reset_revokes_old_generation_and_limits_repeated_reset(): void
     {
         $service = app(DemoWorkspace::class);

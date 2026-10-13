@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { SourceKind } from '../core/contracts';
 import { formatFileSize } from '../core/formatters';
 
@@ -25,9 +25,10 @@ const emit = defineEmits<{
 const fileInput = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
 
-const kindLabel = props.kind === 'orders' ? 'pedidos' : 'repasses';
-const templateLink = `/modelos/${props.kind}.csv`;
-const exampleLink = `/exemplos/${props.kind}.csv`;
+const inputId = computed(() => `file-input-${props.kind}`);
+const kindLabel = computed(() => (props.kind === 'orders' ? 'pedidos' : 'repasses'));
+const templateLink = computed(() => `/modelos/${props.kind}.csv`);
+const exampleLink = computed(() => `/exemplos/${props.kind}.csv`);
 
 function handleFileChange(event: Event) {
   const target = event.target as HTMLInputElement;
@@ -61,30 +62,21 @@ function clearFile() {
   emit('update:modelValue', null);
   emit('change', null);
 }
-
-function triggerSelect() {
-  if (!props.disabled && fileInput.value) {
-    fileInput.value.click();
-  }
-}
 </script>
 
 <template>
   <div class="file-picker">
+    <!-- Dropzone não-interativa (sem role="button" nem tabindex="0") para evitar aninhamento interativo -->
     <div
       class="dropzone"
       :class="{ 'is-dragging': isDragging, 'is-disabled': disabled, 'has-file': !!modelValue }"
       @dragover.prevent="handleDragOver"
       @dragleave.prevent="handleDragLeave"
       @drop.prevent="handleDrop"
-      @click="triggerSelect"
-      tabindex="0"
-      role="button"
-      :aria-label="`Selecionar arquivo CSV de ${kindLabel}`"
-      @keydown.enter.prevent="triggerSelect"
-      @keydown.space.prevent="triggerSelect"
     >
+      <!-- Input nativo acessível com label correspondente -->
       <input
+        :id="inputId"
         ref="fileInput"
         type="file"
         accept=".csv,text/csv"
@@ -93,24 +85,39 @@ function triggerSelect() {
         @change="handleFileChange"
       />
 
+      <label v-if="modelValue" :for="inputId" class="sr-only">Arquivo CSV de {{ kindLabel }}</label>
+
       <div v-if="!modelValue" class="dropzone-empty">
-        <span class="dropzone-prompt">
-          Clique ou arraste o arquivo CSV de <strong>{{ kindLabel }}</strong>
+        <label
+          :for="inputId"
+          class="file-picker-label"
+          :class="{ 'is-disabled': disabled }"
+        >
+          <span class="btn btn-secondary btn-select-file">
+            Selecionar arquivo CSV de {{ kindLabel }}
+          </span>
+          <span class="dropzone-prompt">
+            ou arraste o arquivo aqui
+          </span>
+        </label>
+
+        <span class="dropzone-limits">
+          Formato UTF-8 com vírgula, até 100 registros e 1 MB (1.048.576 bytes). Valores monetários com ponto decimal no CSV (ex.: <code>150.00</code>).
         </span>
-        <span class="dropzone-limits">Formato UTF-8, até 100 registros e 1 MB</span>
       </div>
 
-      <div v-else class="dropzone-file-info" @click.stop>
+      <div v-else class="dropzone-file-info">
         <div class="file-meta">
           <span class="file-name font-bold">{{ modelValue.name }}</span>
           <span class="file-size tabular-nums">{{ formatFileSize(modelValue.size) }}</span>
         </div>
         <button
           type="button"
-          class="btn btn-quiet btn-remove-file"
+          class="btn btn-secondary btn-sm"
+          data-test="btn-change-file"
           :disabled="disabled"
           @click="clearFile"
-          aria-label="Remover arquivo selecionado"
+          aria-label="Trocar arquivo selecionado"
         >
           Trocar arquivo
         </button>
@@ -121,14 +128,15 @@ function triggerSelect() {
       {{ error }}
     </div>
 
+    <!-- Links de modelos e dados de exemplo -->
     <div class="picker-links">
-      <span class="links-title">Modelos para conferência:</span>
+      <span class="links-title">Arquivos para conferência:</span>
       <a :href="templateLink" class="model-link" download>
-        Modelo de {{ kindLabel }} (.csv)
+        Modelo vazio (.csv)
       </a>
       <span class="link-separator">·</span>
       <a :href="exampleLink" class="model-link" download>
-        Exemplo de {{ kindLabel }} (.csv)
+        Exemplo fictício de maio/2026 (.csv)
       </a>
     </div>
   </div>
@@ -139,6 +147,7 @@ function triggerSelect() {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .dropzone {
@@ -147,13 +156,13 @@ function triggerSelect() {
   border-radius: var(--radius);
   padding: 1.25rem 1rem;
   text-align: center;
-  cursor: pointer;
   transition: border-color 150ms ease, background-color 150ms ease;
+  width: 100%;
 }
 
-.dropzone:hover:not(.is-disabled) {
-  border-color: var(--color-ink);
-  background-color: #fafbfc;
+.dropzone:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .dropzone.is-dragging {
@@ -163,7 +172,6 @@ function triggerSelect() {
 
 .dropzone.is-disabled {
   opacity: 0.6;
-  cursor: not-allowed;
   background-color: var(--color-page);
 }
 
@@ -177,25 +185,52 @@ function triggerSelect() {
 .dropzone-empty {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
   align-items: center;
 }
 
+.file-picker-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+}
+
+.file-picker-label.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-select-file {
+  pointer-events: none; /* Deixa o clique passar para o label nativo */
+}
+
 .dropzone-prompt {
-  font-size: 0.9375rem;
-  color: var(--color-ink);
+  font-size: 0.8125rem;
+  color: var(--color-muted);
 }
 
 .dropzone-limits {
   font-size: 0.75rem;
   color: var(--color-muted);
+  max-width: 32rem;
+  line-height: 1.4;
+}
+
+.dropzone-limits code {
+  background-color: var(--color-page);
+  padding: 0.125rem 0.25rem;
+  border-radius: 2px;
+  font-size: 0.75rem;
 }
 
 .dropzone-file-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .file-meta {
@@ -203,6 +238,7 @@ function triggerSelect() {
   flex-direction: column;
   gap: 0.125rem;
   overflow: hidden;
+  min-width: 0;
 }
 
 .file-name {
@@ -223,6 +259,7 @@ function triggerSelect() {
   gap: 0.375rem;
   font-size: 0.75rem;
   color: var(--color-muted);
+  line-height: 1.4;
 }
 
 .model-link {
@@ -237,5 +274,15 @@ function triggerSelect() {
 
 .link-separator {
   color: var(--color-border);
+}
+
+@media (max-width: 640px) {
+  .dropzone {
+    padding: 1rem 0.75rem;
+  }
+  .dropzone-file-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>

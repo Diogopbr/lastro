@@ -42,6 +42,8 @@ export async function apiFetch<T>(url: string, options: ApiFetchOptions = {}): P
 
   // Mutações requerem token CSRF fresco no cabeçalho X-CSRF-TOKEN
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    const expectedWorkspace = typeof document === 'undefined' ? '' : document.querySelector<HTMLMetaElement>('meta[name="lastro-workspace"]')?.content;
+    if (expectedWorkspace) headers.set('X-Lastro-Workspace', expectedWorkspace);
     const csrfToken = await fetchCsrfToken(true);
     headers.set('X-CSRF-TOKEN', csrfToken);
   }

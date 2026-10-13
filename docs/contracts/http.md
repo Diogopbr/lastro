@@ -4,6 +4,8 @@ Contrato de implementação aprovado no plano. A existência de uma rota neste d
 
 Aplicação Laravel/Vue/Inertia no mesmo domínio. Páginas recebem props do servidor; chamadas com Accept: application/json recebem JSON. Cookies de sessão HttpOnly; em produção Secure. Nenhum workspace recebido por campo do navegador autoriza a operação. GET /csrf retorna {token}; obter token fresco antes de cada mutação e enviar X-CSRF-TOKEN. Não isentar mutações de CSRF.
 
+O cliente envia X-Lastro-Workspace com a geração exibida pela página antes de obter CSRF fresco. Esse valor somente detecta página antiga após reset em outra aba; não autoriza acesso. O middleware compara com o workspace derivado da sessão e recusa discrepância404. Entradas de visitante sem workspace não inventam cabeçalho. Navegação explícita para a lista atual pode carregar a geração nova; não transportar automaticamente rascunho antigo.
+
 | Método | Caminho | Comportamento |
 | --- | --- | --- |
 | GET | /health/ready | 200 {status:ready} apenas com PostgreSQL disponível e migrations aplicadas; 503 {status:unavailable} sem detalhes internos. Sem sessão. |

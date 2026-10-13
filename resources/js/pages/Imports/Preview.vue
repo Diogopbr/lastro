@@ -24,6 +24,7 @@ const isRefreshingConference = ref(false);
 const uploadError = ref<string | null>(null);
 const confirmError = ref<string | null>(null);
 const is409Conflict = ref(false);
+const is404Expired = ref(false);
 
 const canConfirm = computed(() => {
   return !!currentPreview.value && currentPreview.value.valid === true;
@@ -36,6 +37,7 @@ function handleFileChange(file: File | null) {
   uploadError.value = null;
   confirmError.value = null;
   is409Conflict.value = false;
+  is404Expired.value = false;
 }
 
 async function handleGeneratePreview() {
@@ -58,8 +60,15 @@ async function handleGeneratePreview() {
 
     currentPreview.value = result;
   } catch (err: unknown) {
-    const errorObj = err as { message?: string; errors?: Record<string, string[]> };
-    uploadError.value = errorObj?.message || 'Falha ao processar arquivo para prévia.';
+    const errorObj = err as { message?: string; status?: number; code?: string; errors?: Record<string, string[]> };
+    if (errorObj?.status === 404 || errorObj?.code === 'not_found') {
+      is404Expired.value = true;
+      uploadError.value =
+        errorObj?.message ||
+        'A conferência não foi encontrada ou o ambiente de demonstração expirou/foi reiniciado.';
+    } else {
+      uploadError.value = errorObj?.message || 'Falha ao processar arquivo para prévia.';
+    }
   } finally {
     isGeneratingPreview.value = false;
   }
@@ -82,8 +91,15 @@ async function handleRefreshConferenceAndPreview() {
       await handleGeneratePreview();
     }
   } catch (err: unknown) {
-    const errorObj = err as { message?: string };
-    confirmError.value = errorObj?.message || 'Falha ao atualizar dados da conferência.';
+    const errorObj = err as { message?: string; status?: number; code?: string };
+    if (errorObj?.status === 404 || errorObj?.code === 'not_found') {
+      is404Expired.value = true;
+      confirmError.value =
+        errorObj?.message ||
+        'A conferência não foi encontrada ou o ambiente de demonstração expirou/foi reiniciado.';
+    } else {
+      confirmError.value = errorObj?.message || 'Falha ao atualizar dados da conferência.';
+    }
   } finally {
     isRefreshingConference.value = false;
   }
@@ -95,6 +111,7 @@ async function handleConfirmImport() {
   isConfirming.value = true;
   confirmError.value = null;
   is409Conflict.value = false;
+  is404Expired.value = false;
 
   try {
     const formData = new FormData();
@@ -114,12 +131,16 @@ async function handleConfirmImport() {
     window.location.href = `/conferencias/${currentConference.value.id}`;
   } catch (err: unknown) {
     const errorObj = err as { message?: string; status?: number; code?: string };
-    // Arquivo selecionado é preservado intacto em caso de 422/409
+    // Arquivo selecionado é preservado intacto em caso de 422/409/404
     if (errorObj?.status === 409 || errorObj?.code === 'conflict') {
       is409Conflict.value = true;
       confirmError.value =
         errorObj?.message ||
         'Conflito de versão: a conferência foi modificada. Atualize a versão e revalide a prévia.';
+    } else if (errorObj?.status === 404 || errorObj?.code === 'not_found') {
+      is404Expired.value = true;
+      confirmError.value =
+        'A conferência não foi encontrada ou o ambiente de demonstração expirou/foi reiniciado.';
     } else {
       confirmError.value =
         errorObj?.message ||
@@ -128,6 +149,19 @@ async function handleConfirmImport() {
   } finally {
     isConfirming.value = false;
   }
+}
+
+async function handleStartNewDemo() {
+  try {
+    const res = await apiFetch<{ redirect?: string }>('/demo/start', { method: 'POST' });
+    if (res?.redirect) {
+      window.location.href = res.redirect;
+      return;
+    }
+  } catch {
+    // fallback
+  }
+  window.location.href = '/entrar';
 }
 </script>
 
@@ -144,7 +178,7 @@ async function handleConfirmImport() {
       <header class="page-header">
         <h1 class="page-title">Importar Fonte: {{ kindTitle }}</h1>
         <p class="page-subtitle">
-          Envie o arquivo CSV para prévia estrutural e validação de regras de negócio antes da gravação definitiva.
+          Confira as linhas e valores apurados antes de confirmar a importação para a conferência.
         </p>
       </header>
 
@@ -174,13 +208,23 @@ async function handleConfirmImport() {
         </div>
       </section>
 
-      <!-- Erro ao Confirmar / Conflito 409 -->
+      <!-- Erro ao Confirmar / Conflito 409 / 404 Expirado -->
       <div v-if="confirmError" class="form-error alert-box" role="alert">
         <div class="alert-msg">
           <strong>Atenção:</strong> {{ confirmError }}
         </div>
+        <div v-if="is404Expired" class="mt-2">
+          <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            data-test="btn-start-new-demo-after-404"
+            @click="handleStartNewDemo"
+          >
+            Iniciar nova demonstração privada
+          </button>
+        </div>
         <button
-          v-if="is409Conflict"
+          v-else-if="is409Conflict"
           type="button"
           class="btn btn-secondary btn-sm mt-2"
           data-test="btn-refresh-conference-version"
@@ -230,8 +274,8 @@ async function handleConfirmImport() {
           </ul>
         </div>
 
-        <!-- Tabela de Prévia (Até 100 Linhas) -->
-        <div class="table-container">
+        <!-- Tabela de Prévia (Desktop) -->
+        <div class="table-container preview-table-desktop">
           <table class="editorial-table">
             <thead>
               <tr>
@@ -258,6 +302,42 @@ async function handleConfirmImport() {
           </table>
         </div>
 
+        <!-- Registros Rotulados (Mobile <= 640px) sem rolagem horizontal -->
+        <div class="preview-records-mobile">
+          <div
+            v-for="row in currentPreview.rows"
+            :key="`mobile-${row.line}`"
+            class="mobile-record-card"
+          >
+            <div class="mobile-record-header">
+              <span class="record-line tabular-nums">Linha {{ row.line }}</span>
+              <span class="record-id tabular-nums font-semibold">{{ row.orderId }}</span>
+            </div>
+            <div class="mobile-record-body">
+              <div v-if="kind === 'payouts' && row.payoutId" class="record-row">
+                <span class="record-label">ID Repasse:</span>
+                <span class="record-val tabular-nums">{{ row.payoutId }}</span>
+              </div>
+              <div class="record-row">
+                <span class="record-label">Data:</span>
+                <span class="record-val tabular-nums">{{ formatDate(row.businessDate) }}</span>
+              </div>
+              <div class="record-row">
+                <span class="record-label">Bruto:</span>
+                <span class="record-val tabular-nums font-semibold">{{ formatMoney(row.gross) }}</span>
+              </div>
+              <div v-if="kind === 'payouts'" class="record-row">
+                <span class="record-label">Tarifa:</span>
+                <span class="record-val tabular-nums text-muted">{{ formatMoney(row.fee) }}</span>
+              </div>
+              <div v-if="kind === 'payouts'" class="record-row">
+                <span class="record-label">Líquido:</span>
+                <span class="record-val tabular-nums font-semibold">{{ formatMoney(row.net) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Ação Final de Confirmação -->
         <div class="confirm-bar">
           <Link
@@ -275,7 +355,7 @@ async function handleConfirmImport() {
             :disabled="!canConfirm || isConfirming"
             @click="handleConfirmImport"
           >
-            {{ isConfirming ? 'Confirmando importação…' : 'Confirmar importação e gravar dados' }}
+            {{ isConfirming ? 'Confirmando importação…' : 'Confirmar importação' }}
           </button>
         </div>
       </section>
@@ -417,5 +497,71 @@ async function handleConfirmImport() {
 
 .font-semibold {
   font-weight: 600;
+}
+
+.preview-records-mobile {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .preview-table-desktop {
+    display: none;
+  }
+
+  .preview-records-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobile-record-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .mobile-record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border-subtle);
+    padding-bottom: 0.375rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .record-line {
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+
+  .record-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.2rem 0;
+  }
+
+  .record-label {
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+  }
+
+  .record-val {
+    font-size: 0.8125rem;
+    text-align: right;
+  }
+
+  .confirm-bar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .confirm-bar .btn {
+    width: 100%;
+    text-align: center;
+  }
 }
 </style>

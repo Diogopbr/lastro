@@ -31,7 +31,7 @@ describe('Login - controle de modo demo', () => {
     });
 
     expect(wrapper.find('[data-test="btn-start-demo-login"]').exists()).toBe(false);
-    expect(wrapper.text()).not.toContain('Ambiente de Demonstração');
+    expect(wrapper.text()).not.toContain('Iniciar demonstração privada');
   });
 
   it('exibe opcao de demonstracao quando demoEnabled for explicitamente verdadeiro', () => {
@@ -48,6 +48,7 @@ describe('Login - controle de modo demo', () => {
     });
 
     expect(wrapper.find('[data-test="btn-start-demo-login"]').exists()).toBe(true);
-    expect(wrapper.text()).toContain('Ambiente de Demonstração');
+    expect(wrapper.text()).toContain('Pedidos e repasses, conferidos linha a linha.');
+    expect(wrapper.text()).toContain('Iniciar demonstração privada');
   });
 });

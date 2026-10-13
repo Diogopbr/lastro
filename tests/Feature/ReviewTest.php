@@ -71,7 +71,7 @@ class ReviewTest extends ReconciliationDatabase
 
     public static function invalidNotes(): array
     {
-        return [[''], ['ab'], ['   '], [str_repeat('é', 1001)], ["bad\xFF"]];
+        return [[''], ['ab'], ['   '], [str_repeat('é', 1001)], ["bad\xFF"], ["abc\0x"], [str_repeat("\u{00A0}", 3)], [str_repeat("\u{200B}", 3)]];
     }
 
     public function test_accepts_three_and_one_thousand_unicode_characters(): void

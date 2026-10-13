@@ -64,12 +64,12 @@ async function submitReview(andNext = false) {
     // Limpa a nota apenas após sucesso confirmado no servidor
     note.value = '';
   } catch (err: unknown) {
-    const errorObj = err as { status?: number; code?: string; message?: string };
+    const errorObj = err as { status?: number; code?: string; message?: string; errors?: Record<string, string[]> };
     if (errorObj?.status === 409 || errorObj?.code === 'conflict') {
       const msg = errorObj.message || 'O registro foi modificado por outra sessão.';
       conflictError.value = `conflito de versão detectado: ${msg}`;
     } else {
-      generalError.value = errorObj?.message || 'Erro ao registrar revisão.';
+      generalError.value = errorObj?.errors?.note?.[0] || errorObj?.message || 'Erro ao registrar revisão.';
     }
   } finally {
     isSubmitting.value = false;
@@ -87,11 +87,14 @@ async function handleReload() {
 
 <template>
   <div class="review-panel">
-    <div class="panel-section">
+    <div v-if="result.reviewStatus === null" class="panel-section">
+      <h3 class="section-title">Correspondência exata</h3>
+      <p class="section-desc">Os valores brutos correspondem; não há pendência de revisão neste registro.</p>
+    </div>
+    <div v-else class="panel-section">
       <h3 class="section-title">Revisão e apontamento</h3>
       <p class="section-desc">
-        Registre uma justificativa ou análise técnica da divergência. O status de revisão audita a
-        análise sem alterar os valores nem a classificação original do sistema.
+        Registre o que você conferiu. Revisar não muda os valores ou a classificação do pedido.
       </p>
 
       <!-- Banner de Conflito 409: preserva o texto digitado -->
@@ -127,6 +130,7 @@ async function handleReload() {
           rows="3"
           placeholder="Descreva o motivo da divergência ou conclusão da conferência…"
           :disabled="isSubmitting"
+          maxlength="1000"
         ></textarea>
 
         <div class="actions-row">
@@ -141,7 +145,7 @@ async function handleReload() {
           </button>
 
           <button
-            v-if="hasNextPending"
+            v-if="hasNextPending && result.reviewStatus === 'pending'"
             type="button"
             class="btn btn-secondary"
             data-test="btn-save-and-next"
@@ -155,7 +159,7 @@ async function handleReload() {
     </div>
 
     <!-- Histórico de Auditoria -->
-    <div class="panel-section history-section">
+    <div v-if="result.reviewStatus !== null" class="panel-section history-section">
       <h4 class="history-title">Histórico de alterações (auditoria)</h4>
       <div v-if="!result.reviewEvents || result.reviewEvents.length === 0" class="history-empty">
         Nenhum apontamento registrado anteriormente.

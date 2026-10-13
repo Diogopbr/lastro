@@ -36,7 +36,7 @@ final class ReviewResult
                 throw ValidationException::withMessages(['action' => 'Esta ação não é válida para o estado atual da revisão.']);
             }
             $note = trim($note, ' ');
-            if (! mb_check_encoding($note, 'UTF-8') || trim($note) === '' || mb_strlen($note, 'UTF-8') < 3 || mb_strlen($note, 'UTF-8') > 1000) {
+            if (! mb_check_encoding($note, 'UTF-8') || str_contains($note, "\0") || preg_match('/\A[\p{Z}\p{Cf}\s]*\z/u', $note) === 1 || mb_strlen($note, 'UTF-8') < 3 || mb_strlen($note, 'UTF-8') > 1000) {
                 throw ValidationException::withMessages(['note' => 'Informe uma justificativa válida com 3 a 1000 caracteres.']);
             }
             $actor = DB::table('users')->where('workspace_id', $scope->id)->where('id', $scope->userId)->first();

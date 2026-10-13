@@ -77,3 +77,37 @@ do plano. O arquivo contém todas as linhas mesmo com filtros ou pendências.
 Relatórios externos em docs/tasks/copilot-reconciliation-result.md e
 copilot-review-export-result.md. Frontend ainda precisa concluir correções e
 QA do fluxo completo no navegador; Lastro não está publicado.
+
+## Interface e verificação integrada — 12/10/2026
+
+Antigravity concluiu o lote de responsividade/entrada/seletor de arquivo e
+resincronização do resumo. Codex repetiu 28 testes, tipagem e build, integrou o
+escopo frontend e corrigiu achados reais do percurso: rótulo do arquivo precisava
+continuar presente após seleção; tabela de resultados precisava de registros
+rotulados no celular; notas inválidas precisam da mensagem específica do servidor;
+correspondências exatas não oferecem revisão; reabertura não pode ter botão
+ambíguo de salvar/próxima; falha de recarga precisa de mensagem e recuperação.
+
+Reset em outra aba também expôs rascunho que podia criar na geração nova usando
+cookie compartilhado. O cliente captura X-Lastro-Workspace antes de pedir CSRF
+fresco; servidor compara apenas como expectativa, sem usar o header para
+autorizar. RED aceitou201 indevido; GREEN recusa404 e preserva rascunho, permitindo
+criação somente na página da geração atual. Navegador confirmou o caso real.
+
+Verificação por scripts/verify.ps1: **283 testes PHP /1313 assertions**, **34
+testes frontend /16suítes**, **3 E2E em12,6s**, Composer validate/platform,
+Pint, typecheck, build e diff check passaram. Backend em PostgreSQL real,
+sem SQLite ou skipped tests. Foram observadas notas NUL/visualmente vazias
+aceitas antes da correção; regressões agora recebem422 sem evento/versão extra.
+
+Navegador: importar dois CSVs, conciliar, revisar, reload, exportar4resultados,
+reabrir; corrigir CSV inválido no390px; isolar visitantes e recusar aba antiga
+após reset. Auditoria de13estados capturados: Axe WCAG AA zero violações,
+scrollWidth=390 no celular e1440 no desktop, sem pageerror. Fontes locais200.
+Capturas reais com dados fictícios em docs/screenshots; posição de scroll é
+zerada ao fotografar para não duplicar a barra sticky no meio da imagem.
+
+Hospedagem preparada: projeto Vercel Lastro e Neon Free separados, migrations
+aplicadas com TLS verificado, role limitada e APP_KEY próprio por stdin.
+Não houve deploy, GitHub público ou CI remoto do Lastro até esta verificação.
+Revisão independente e validação hospedada continuam como gates de publicação.

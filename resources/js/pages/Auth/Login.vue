@@ -68,55 +68,100 @@ async function handleLoginSubmit() {
 </script>
 
 <template>
-  <AppLayout title="Entrada">
-    <div class="auth-page">
-      <div class="auth-card">
-        <header class="auth-header">
-          <h1 class="brand-title auth-title">Lastro</h1>
-          <p class="auth-subtitle">
-            Conferência e conciliação de pedidos pagos e repasses do intermediador.
-          </p>
-        </header>
-
-        <!-- Seção Demonstração Privada -->
-        <section v-if="isDemoEnabled" class="demo-section">
-          <div class="demo-box">
-            <h2 class="section-heading">Ambiente de Demonstração</h2>
-            <p class="section-desc">
-              Inicie um ambiente isolado com 3 conferências de exemplo pré-carregadas para avaliar
-              o fluxo de conferência, divergências e auditoria.
+  <AppLayout title="Entrada" is-entry-page>
+    <div class="entry-view">
+      <!-- Modo Demonstração: Composição Editorial -->
+      <template v-if="isDemoEnabled">
+        <div class="demo-editorial-grid">
+          <!-- Coluna 1: Proposta, Ação e Regras -->
+          <section class="demo-narrative">
+            <h1 class="brand-title editorial-headline">
+              Pedidos e repasses, conferidos linha a linha.
+            </h1>
+            <p class="editorial-lede">
+              O Lastro cruza pedidos faturados com o extrato de repasses do intermediador
+              financeiro. Compara o valor bruto de cada pedido, calcula diferenças exatas e
+              exibe as tarifas e o valor líquido informados.
             </p>
 
-            <div v-if="demoError" class="form-error mb-2" role="alert">
+            <div v-if="demoError" class="form-error" role="alert">
               {{ demoError }}
             </div>
 
-            <button
-              type="button"
-              class="btn btn-primary w-full"
-              data-test="btn-start-demo-login"
-              :disabled="isStartingDemo"
-              @click="handleStartDemo"
-            >
-              {{ isStartingDemo ? 'Preparando ambiente…' : 'Iniciar demonstração privada' }}
-            </button>
-            <span class="demo-footnote">Validade de 24 horas por visitante. Sem senha compartilhada.</span>
-          </div>
+            <div class="demo-action-area">
+              <button
+                type="button"
+                class="btn btn-primary btn-demo-action"
+                data-test="btn-start-demo-login"
+                :disabled="isStartingDemo"
+                @click="handleStartDemo"
+              >
+                {{ isStartingDemo ? 'Iniciando ambiente…' : 'Iniciar demonstração privada' }}
+              </button>
+              <p class="demo-rules-note">
+                Ambiente privado com 3 exemplos de conferência, até 5 conferências no total e validade fixa de 24h por visitante.
+              </p>
+            </div>
+          </section>
 
-          <div class="divider-text">
-            <span>ou acesse com credenciais de equipe</span>
-          </div>
-        </section>
+          <!-- Coluna 2: Comparação Concreta de Exemplo (Fictícia e Útil) -->
+          <section class="demo-specimen" data-test="demo-concrete-example">
+            <header class="specimen-header">
+              <span class="specimen-tag">Exemplo fictício de conciliação</span>
+              <span class="badge badge-mismatch">Divergência de valor</span>
+            </header>
 
-        <!-- Formulário de Acesso de Equipe -->
-        <section class="login-section">
-          <h2 class="section-heading sr-only">Credenciais de equipe</h2>
+            <div class="specimen-body">
+              <div class="specimen-row">
+                <span class="row-label">Identificador do pedido</span>
+                <span class="row-value tabular-nums font-semibold">0002</span>
+              </div>
+              <div class="specimen-row">
+                <span class="row-label">Valor esperado (pedidos)</span>
+                <span class="row-value tabular-nums">R$ 200,00</span>
+              </div>
+              <div class="specimen-row">
+                <span class="row-label">Bruto informado (repasses)</span>
+                <span class="row-value tabular-nums">R$ 190,00</span>
+              </div>
+              <div class="specimen-row highlight-diff">
+                <span class="row-label">Diferença apurada</span>
+                <span class="row-value tabular-nums font-semibold text-copper">-R$ 10,00</span>
+              </div>
+              <div class="specimen-row">
+                <span class="row-label">Tarifa do intermediador</span>
+                <span class="row-value tabular-nums text-muted">R$ 5,00</span>
+              </div>
+              <div class="specimen-row">
+                <span class="row-label">Líquido informado</span>
+                <span class="row-value tabular-nums font-semibold">R$ 185,00</span>
+              </div>
+            </div>
 
-          <div v-if="generalError" class="form-error mb-2" role="alert">
+            <footer class="specimen-footer">
+              <span class="origin-note tabular-nums">
+                Origem: Linha 3 de <code>pedidos-exemplo.csv</code> · Linha 3 de <code>repasses-exemplo.csv</code>
+              </span>
+            </footer>
+          </section>
+        </div>
+      </template>
+
+      <!-- Modo Normal: Formulário Corporativo (Apenas quando demoEnabled é false) -->
+      <template v-else>
+        <div class="team-login-wrap">
+          <header class="team-header">
+            <h1 class="brand-title team-title">Lastro</h1>
+            <p class="team-subtitle">
+              Acesso à instalação corporativa de conferência de pedidos e repasses.
+            </p>
+          </header>
+
+          <div v-if="generalError" class="form-error mb-3" role="alert">
             {{ generalError }}
           </div>
 
-          <form @submit.prevent="handleLoginSubmit" class="login-form">
+          <form @submit.prevent="handleLoginSubmit" class="team-form">
             <div class="form-group">
               <label for="email" class="form-label">E-mail corporativo</label>
               <input
@@ -151,122 +196,210 @@ async function handleLoginSubmit() {
 
             <button
               type="submit"
-              class="btn btn-secondary w-full"
+              class="btn btn-primary w-full"
               :disabled="isLoggingIn"
             >
               {{ isLoggingIn ? 'Entrando…' : 'Acessar instalação' }}
             </button>
           </form>
-        </section>
-      </div>
+        </div>
+      </template>
     </div>
   </AppLayout>
 </template>
 
 <style scoped>
-.auth-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 0;
-}
-
-.auth-card {
-  max-width: 26rem;
+.entry-view {
   width: 100%;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 2rem;
+  max-width: 100%;
+  padding: 1.5rem 0 3rem 0;
 }
 
-.auth-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
+/* Grade Editorial de Demonstração */
+.demo-editorial-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 2.5rem;
+  align-items: start;
 }
 
-.auth-title {
-  font-size: 1.875rem;
-  margin-bottom: 0.375rem;
-}
-
-.auth-subtitle {
-  font-size: 0.875rem;
-  color: var(--color-muted);
-  margin: 0;
-}
-
-.demo-section {
+.demo-narrative {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.demo-box {
-  background-color: var(--color-page);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius);
-  padding: 1.25rem;
+.editorial-headline {
+  text-wrap: balance;
+  font-size: 2.25rem;
+  line-height: 1.2;
+  color: var(--color-ink);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.editorial-lede {
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.demo-action-area {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
-.section-heading {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  margin: 0;
-  color: var(--color-ink);
+.btn-demo-action {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  align-self: flex-start;
 }
 
-.section-desc {
+.demo-rules-note {
   font-size: 0.8125rem;
   color: var(--color-muted);
   margin: 0;
   line-height: 1.4;
 }
 
-.demo-footnote {
-  font-size: 0.6875rem;
-  color: var(--color-muted);
-  text-align: center;
-}
-
-.divider-text {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: var(--color-muted);
-  font-size: 0.75rem;
-}
-
-.divider-text::before,
-.divider-text::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.divider-text span {
-  padding: 0 0.5rem;
-}
-
-.login-form {
+/* Espécime de Exemplo Editorial */
+.demo-specimen {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.form-group {
+.specimen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: 0.625rem;
+}
+
+.specimen-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.specimen-body {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+}
+
+.specimen-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.8125rem;
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.row-label {
+  color: var(--color-muted);
+}
+
+.row-value {
+  color: var(--color-ink);
+  text-align: right;
+}
+
+.highlight-diff {
+  background-color: var(--color-copper-subtle);
+  padding: 0.375rem 0.5rem;
+  border-radius: 2px;
+  border-bottom: none;
+}
+
+.text-copper {
+  color: var(--color-copper);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.specimen-footer {
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+  padding-top: 0.25rem;
+}
+
+.origin-note code {
+  background-color: var(--color-page);
+  padding: 0.125rem 0.25rem;
+  border-radius: 2px;
+  font-size: 0.6875rem;
+}
+
+/* Modo Normal: Login de Equipe */
+.team-login-wrap {
+  max-width: 24rem;
+  margin: 2rem auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
+.team-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.team-title {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.team-subtitle {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.team-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .w-full {
   width: 100%;
 }
 
-.mb-2 {
-  margin-bottom: 0.5rem;
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+/* Responsividade Mobile 390px */
+@media (max-width: 640px) {
+  .demo-editorial-grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .editorial-headline {
+    font-size: 1.625rem;
+  }
+  .btn-demo-action {
+    width: 100%;
+  }
 }
 </style>

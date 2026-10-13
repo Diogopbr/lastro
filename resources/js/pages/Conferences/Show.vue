@@ -235,12 +235,15 @@ async function handleReconcile() {
                 <span class="meta-val tabular-nums">{{ formatDateTime(currentConference.sources.orders.confirmedAt) }}</span>
               </div>
 
+              <p class="source-immutable-hint">
+                Fontes confirmadas são imutáveis. O reenvio do mesmo arquivo é idempotente; para conferir arquivos com conteúdo diferente, crie uma nova conferência.
+              </p>
               <div class="card-action">
                 <Link
                   :href="`/conferencias/${currentConference.id}/fontes/orders/preview`"
                   class="btn btn-secondary btn-sm"
                 >
-                  Substituir arquivo de pedidos
+                  Conferir arquivo novamente
                 </Link>
               </div>
             </div>
@@ -286,12 +289,15 @@ async function handleReconcile() {
                 <span class="meta-val tabular-nums">{{ formatDateTime(currentConference.sources.payouts.confirmedAt) }}</span>
               </div>
 
+              <p class="source-immutable-hint">
+                Fontes confirmadas são imutáveis. O reenvio do mesmo arquivo é idempotente; para conferir arquivos com conteúdo diferente, crie uma nova conferência.
+              </p>
               <div class="card-action">
                 <Link
                   :href="`/conferencias/${currentConference.id}/fontes/payouts/preview`"
                   class="btn btn-secondary btn-sm"
                 >
-                  Substituir arquivo de repasses
+                  Conferir arquivo novamente
                 </Link>
               </div>
             </div>
@@ -576,5 +582,29 @@ async function handleReconcile() {
 
 .font-semibold {
   font-weight: 600;
+}
+
+.source-immutable-hint {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  margin: 0.5rem 0 0.25rem 0;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .conference-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .header-actions {
+    width: 100%;
+  }
+  .header-actions .btn {
+    width: 100%;
+  }
+  .sources-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
