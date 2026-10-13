@@ -46,3 +46,9 @@ boost.json
 /database/*.sqlite*
 
 .vercel
+/AGENTS.md
+/.impeccable/
+/docs/tasks/
+/docs/superpowers/plans/
+/docs/launch/
+/docs/evidence/progress.md

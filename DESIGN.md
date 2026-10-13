@@ -91,7 +91,7 @@ components:
 
 Papel claro, tinta azul e cobre sustentam uma interface de trabalho em modo Operate. A hierarquia serve à leitura de fontes, comparação de valores e registro de análise. Os números são tabulares; as divisões são regras finas; a identidade combina marca serifada e texto operacional sem serifa.
 
-Este documento é um REFRESH do provisório, extraído do código vigente. A direção manual code-led foi escolhida por Codex sob autonomia delegada, registrada em `.superpowers/sdd/2026-10-10-lastro/progress.md`. Não houve comp aprovado, seed/concept roll ou quality-bar card; a ausência é uma exceção delegada, não uma escolha em workshop. As decisões qualitativas preservam a direção já registrada, sem nova preferência atribuída ao usuário.
+Este documento descreve os tokens e componentes presentes no código. A direção visual usa uma mesa de conferência, tipografia editorial e comparação direta entre fontes; os valores documentados devem acompanhar mudanças na interface.
 
 **Key Characteristics:**
 

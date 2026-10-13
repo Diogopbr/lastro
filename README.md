@@ -117,7 +117,7 @@ Verificado em 12–13/10/2026: **284 testes PHP / 1.319 assertions**, **36 teste
 frontend** e **5 cenários Playwright**. Disputas usam processos/conexões
 independentes e bloqueio observado no PostgreSQL; há controle negativo da quota.
 Sessão/CSRF foram testados em duas instâncias HTTP separadas. Evidências em
-[progresso](docs/evidence/progress.md) e relatórios de tarefas.
+[publicação](docs/evidence/publication.md), com referência aos testes reproduzíveis.
 CI Linux passou no commit `3213843`, com os cinco cenários juntos. Os quatro cenários iniciais também passaram no
 domínio público, em50,8s. Sessão e visitante usam cookies Secure/HttpOnly/Lax;
 CSRF inválido retorna419, e caminhos privados retornam404.
