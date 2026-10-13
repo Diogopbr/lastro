@@ -55,6 +55,7 @@ jobs:
           CREATE DATABASE lastro_test OWNER lastro_test;
           REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
           SQL
+      - run: cp .env.example .env
       - run: composer install --no-interaction --prefer-dist --no-progress
       - run: composer validate --strict
       - run: composer check-platform-reqs

@@ -17,10 +17,10 @@ class VercelIngressTest extends TestCase
     public function test_gateway_mode_uses_the_platform_ip_and_https_but_not_forwarded_host(): void
     {
         config(['lastro.vercel_ingress' => true, 'lastro.vercel_runtime' => true]);
-        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.2'])->getJson('/test/ingress', [
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.2'])->getJson('http://lastro.example/test/ingress', [
             'X-Vercel-Forwarded-For' => '203.0.113.19', 'X-Forwarded-For' => '198.51.100.1',
             'X-Forwarded-Proto' => 'https', 'X-Forwarded-Host' => 'attacker.example',
-        ])->assertOk()->assertJsonPath('ip', '203.0.113.19')->assertJsonPath('secure', true)->assertJsonPath('host', 'localhost');
+        ])->assertOk()->assertJsonPath('ip', '203.0.113.19')->assertJsonPath('secure', true)->assertJsonPath('host', 'lastro.example');
     }
 
     public function test_direct_server_ignores_headers_even_after_a_gateway_request(): void

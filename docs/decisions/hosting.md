@@ -52,3 +52,24 @@ Fontes oficiais:
 [FrankenPHP Docker/non-root](https://frankenphp.dev/docs/docker/),
 [Laravel deployment](https://laravel.com/framework/docs/13.x/deployment),
 [headers do gateway Vercel](https://vercel.com/docs/headers/request-headers).
+
+## PDO e o pool transacional
+
+A primeira imagem ficou Ready e serviu entrada/readiness, mas `/demo/start`
+retornou500 ao atualizar o contador de acesso: SQLSTATE25P02. Um diagnóstico
+com a role limitada no mesmo endpoint pooled, TLS verify-full e apenas SELECTs
+reproduziu a falha depois de liberar um statement nomeado. Com
+`Pdo\Pgsql::ATTR_DISABLE_PREPARES=true`, a transação permaneceu utilizável e
+o parâmetro literal foi preservado. A configuração usa consultas parametrizadas
+de execução única, sem nomes ligados à sessão; não concatena dados em SQL.
+
+O driver PDO compilado com libpq anterior a17 libera statements por
+`DEALLOCATE`, caminho incompatível com o estado de nomes do pool. A biblioteca
+local usa16.15; o build Debian mostrou libpq15.19. A execução local em PostgreSQL
+direto não reproduzia a incompatibilidade do pool. Regressão adicional verifica
+bindings, ausência de nomes `pdo_stmt_*` e query seguinte após liberar statement.
+
+Referências de implementação:
+[PDO PostgreSQL](https://www.php.net/manual/en/ref.pdo-pgsql.php),
+[liberação de statements no driver PHP8.5](https://github.com/php/php-src/blob/PHP-8.5/ext/pdo_pgsql/pgsql_statement.c),
+[compatibilidade de prepared statements no PgBouncer](https://www.pgbouncer.org/faq.html).

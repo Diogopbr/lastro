@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Str;
 use Pdo\Mysql;
+use Pdo\Pgsql;
 
 return [
 
@@ -98,6 +99,10 @@ return [
             'search_path' => env('DB_SEARCH_PATH', 'public'),
             'sslmode' => env('DB_SSLMODE', 'prefer'),
             'sslrootcert' => env('DB_SSLROOTCERT'),
+            // Use bound one-shot protocol queries; pooled sessions cannot own PDO names.
+            'options' => extension_loaded('pdo_pgsql') ? [
+                (PHP_VERSION_ID >= 80400 ? Pgsql::ATTR_DISABLE_PREPARES : PDO::PGSQL_ATTR_DISABLE_PREPARES) => true,
+            ] : [],
         ],
 
         'sqlsrv' => [
