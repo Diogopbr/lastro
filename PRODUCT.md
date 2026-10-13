@@ -2,7 +2,7 @@
 
 Aplicação de portfólio de Diogo Pereira para conferir pedidos pagos e repasses informados por um intermediador através de dois CSVs. Dados fictícios, sem integração bancária, pagamentos ou afirmação de experiência comercial. Usuário precisa descobrir diferenças exatas, consultar a origem, registrar uma análise e exportar o resultado.
 
-O trabalho central é importação validada sem lote parcial, dinheiro preciso no servidor, quatro classificações explicáveis, revisão auditável e exportação segura. Demonstração cria ambiente privado por visitante, com três exemplos, cinco conferências e validade fixa de24h. Instalação normal exige login de equipe.
+O trabalho central é importação validada sem lote parcial, dinheiro preciso no servidor, quatro classificações explicáveis, revisão auditável e exportação segura. Demonstração cria ambiente privado por visitante, com três cenários (dois conciliados e um aguardando importação), limite de cinco conferências e validade fixa de 24h. Instalação normal exige login de equipe.
 
 Público imediato: avaliadores técnicos/recrutadores que podem testar uma aplicação completa, inclusive pelo celular. Modo Operate, com leitura de dados e decisões. Não inventar usuários, clientes, receitas ou métricas de adoção.
 

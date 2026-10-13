@@ -1,0 +1,240 @@
+{
+  "components": [
+    {
+      "refersTo": "button-primary",
+      "description": "Variante real de resources/css/app.css (.btn e .btn-primary).",
+      "kind": "button",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Conferir</button>",
+      "css": ".ds-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  padding: 0.5rem 0.875rem;\n  font-size: 0.875rem;\n  font-weight: 600;\n  font-family: inherit;\n  border-radius: var(--radius);\n  border: 1px solid transparent;\n  cursor: pointer;\n  text-decoration: none;\n  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;\n  white-space: nowrap;\n  max-width: 100%;\n}\n.ds-btn:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.ds-btn-primary {\n  background-color: var(--color-copper);\n  color: #ffffff;\n  border-color: var(--color-copper);\n}\n.ds-btn-primary:hover:not(:disabled) {\n  background-color: #853e1d;\n  border-color: #853e1d;\n}\n@media (max-width: 640px) { .ds-btn { white-space: normal; text-align: center; word-break: break-word; } }\n.ds-btn { font-family: var(--font-body); }\n.ds-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }",
+      "name": "Botão primary"
+    },
+    {
+      "refersTo": "button-secondary",
+      "description": "Variante real de resources/css/app.css (.btn e .btn-secondary).",
+      "kind": "button",
+      "html": "<button class=\"ds-btn ds-btn-secondary\">Conferir</button>",
+      "css": ".ds-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  padding: 0.5rem 0.875rem;\n  font-size: 0.875rem;\n  font-weight: 600;\n  font-family: inherit;\n  border-radius: var(--radius);\n  border: 1px solid transparent;\n  cursor: pointer;\n  text-decoration: none;\n  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;\n  white-space: nowrap;\n  max-width: 100%;\n}\n.ds-btn:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.ds-btn-secondary {\n  background-color: var(--color-surface);\n  color: var(--color-ink);\n  border-color: var(--color-border);\n}\n.ds-btn-secondary:hover:not(:disabled) {\n  background-color: var(--color-page);\n  border-color: var(--color-muted);\n}\n@media (max-width: 640px) { .ds-btn { white-space: normal; text-align: center; word-break: break-word; } }\n.ds-btn { font-family: var(--font-body); }\n.ds-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }",
+      "name": "Botão secondary"
+    },
+    {
+      "refersTo": "button-quiet",
+      "description": "Variante real de resources/css/app.css (.btn e .btn-quiet).",
+      "kind": "button",
+      "html": "<button class=\"ds-btn ds-btn-quiet\">Conferir</button>",
+      "css": ".ds-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  padding: 0.5rem 0.875rem;\n  font-size: 0.875rem;\n  font-weight: 600;\n  font-family: inherit;\n  border-radius: var(--radius);\n  border: 1px solid transparent;\n  cursor: pointer;\n  text-decoration: none;\n  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;\n  white-space: nowrap;\n  max-width: 100%;\n}\n.ds-btn:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.ds-btn-quiet {\n  background: transparent;\n  color: var(--color-muted);\n  border-color: transparent;\n  padding: 0.375rem 0.625rem;\n}\n.ds-btn-quiet:hover:not(:disabled) {\n  color: var(--color-ink);\n  background-color: var(--color-border-subtle);\n}\n@media (max-width: 640px) { .ds-btn { white-space: normal; text-align: center; word-break: break-word; } }\n.ds-btn { font-family: var(--font-body); }\n.ds-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }",
+      "name": "Botão quiet"
+    },
+    {
+      "refersTo": "button-danger",
+      "description": "Variante real de resources/css/app.css (.btn e .btn-danger).",
+      "kind": "button",
+      "html": "<button class=\"ds-btn ds-btn-danger\">Conferir</button>",
+      "css": ".ds-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  padding: 0.5rem 0.875rem;\n  font-size: 0.875rem;\n  font-weight: 600;\n  font-family: inherit;\n  border-radius: var(--radius);\n  border: 1px solid transparent;\n  cursor: pointer;\n  text-decoration: none;\n  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;\n  white-space: nowrap;\n  max-width: 100%;\n}\n.ds-btn:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.ds-btn-danger {\n  background-color: #b91c1c;\n  color: #ffffff;\n  border-color: #b91c1c;\n}\n.ds-btn-danger:hover:not(:disabled) {\n  background-color: #991b1b;\n}\n@media (max-width: 640px) { .ds-btn { white-space: normal; text-align: center; word-break: break-word; } }\n.ds-btn { font-family: var(--font-body); }\n.ds-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }",
+      "name": "Botão danger"
+    },
+    {
+      "refersTo": "input-text",
+      "description": "Campo real de resources/css/app.css; foco muda a borda e remove outline.",
+      "kind": "input",
+      "html": "<label class=\"ds-form-label\" for=\"ds-search\">Pedido</label><input id=\"ds-search\" class=\"ds-input-text\" placeholder=\"Identificador do pedido\">",
+      "css": ".ds-input-text, .ds-input-select, .ds-input-textarea {\n  display: block;\n  width: 100%;\n  padding: 0.5rem 0.75rem;\n  font-size: 0.875rem;\n  font-family: inherit;\n  color: var(--color-ink);\n  background-color: var(--color-surface);\n  border: 1px solid var(--color-border);\n  border-radius: var(--radius);\n  transition: border-color 150ms ease;\n}\n.ds-input-text:focus, .ds-input-select:focus, .ds-input-textarea:focus {\n  border-color: var(--color-ink);\n  outline: none;\n}\n.ds-input-text:disabled, .ds-input-select:disabled, .ds-input-textarea:disabled {\n  background-color: var(--color-page);\n  color: var(--color-muted);\n  cursor: not-allowed;\n}\n.ds-form-label {\n  display: block;\n  font-size: 0.8125rem;\n  font-weight: 600;\n  color: var(--color-ink);\n  margin-bottom: 0.25rem;\n}\n.ds-input-text { font-family: var(--font-body); }",
+      "name": "Campo de texto"
+    },
+    {
+      "refersTo": "badge-matched",
+      "description": "Badge real de resources/css/app.css, sem comportamento interativo.",
+      "kind": "chip",
+      "html": "<span class=\"ds-badge ds-badge-matched\">Correspondente</span>",
+      "css": ".ds-badge {\n  display: inline-flex;\n  align-items: center;\n  padding: 0.125rem 0.5rem;\n  font-size: 0.75rem;\n  font-weight: 600;\n  border-radius: var(--radius);\n  line-height: 1.4;\n  white-space: nowrap;\n}\n.ds-badge-matched {\n  background-color: var(--color-match-subtle);\n  color: var(--color-match);\n  border: 1px solid var(--color-match-border);\n}\n.ds-badge { font-family: var(--font-body); }",
+      "name": "Status matched"
+    },
+    {
+      "refersTo": "badge-neutral",
+      "description": "Badge real de resources/css/app.css, sem comportamento interativo.",
+      "kind": "chip",
+      "html": "<span class=\"ds-badge ds-badge-neutral\">Revisado</span>",
+      "css": ".ds-badge {\n  display: inline-flex;\n  align-items: center;\n  padding: 0.125rem 0.5rem;\n  font-size: 0.75rem;\n  font-weight: 600;\n  border-radius: var(--radius);\n  line-height: 1.4;\n  white-space: nowrap;\n}\n.ds-badge-neutral {\n  background-color: var(--color-neutral-bg);\n  color: var(--color-neutral-badge);\n  border: 1px solid var(--color-neutral-border);\n}\n.ds-badge { font-family: var(--font-body); }",
+      "name": "Status neutral"
+    },
+    {
+      "html": "<nav aria-label=\"Navegação principal\"><a class=\"ds-nav-link ds-is-active\" href=\"#conferencias\">Conferências</a></nav>",
+      "css": ".ds-nav-links {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n}\n.ds-nav-link {\n  font-size: 0.875rem;\n  font-weight: 600;\n  color: var(--color-muted);\n  text-decoration: none;\n  padding: 0.25rem 0.5rem;\n  border-radius: var(--radius);\n  transition: color 150ms ease;\n}\n.ds-nav-link:hover, .ds-nav-link.ds-is-active {\n  color: var(--color-ink);\n}\n.ds-nav-link { font-family: var(--font-body); }\n.ds-nav-link:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }",
+      "kind": "nav",
+      "description": "AppLayout.vue .nav-link: hover e estado ativo em tinta.",
+      "name": "Navegação Conferências"
+    },
+    {
+      "refersTo": "reconcile-container",
+      "description": "Conferences/Show.vue .reconcile-card; superfície de trabalho plana.",
+      "kind": "card",
+      "html": "<section class=\"ds-reconcile-card\"><h2 class=\"ds-reconcile-title\">Conciliação</h2><span>Pedidos e repasses importados</span></section>",
+      "css": ".ds-reconcile-card {\n  background-color: var(--color-surface);\n  border: 1px solid var(--color-border);\n  border-radius: var(--radius);\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  gap: 1.25rem;\n}\n.ds-reconcile-title {\n  font-size: 1.0625rem;\n  margin: 0;\n}\n.ds-reconcile-card { font-family: var(--font-body); color: var(--color-ink); }",
+      "name": "Área de conciliação"
+    },
+    {
+      "html": "<div class=\"ds-source-fields\"><div class=\"ds-field-row\"><span class=\"ds-field-label\">Arquivo de origem</span><span class=\"ds-field-value ds-file-name\">pedidos-marketplace-maio-exemplo.csv</span></div><div class=\"ds-field-row\"><span class=\"ds-field-label\">Hash SHA256</span><span class=\"ds-field-value ds-hash-code\">0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef</span></div></div>",
+      "css": ".ds-source-fields {\n  display: flex;\n  flex-direction: column;\n  gap: 0.5rem;\n}\n.ds-field-row {\n  display: flex;\n  justify-content: space-between;\n  align-items: baseline;\n  gap: 1rem;\n  font-size: 0.8125rem;\n  padding-bottom: 0.375rem;\n  border-bottom: 1px solid var(--color-border-subtle);\n}\n.ds-field-label {\n  color: var(--color-muted);\n  flex-shrink: 0;\n}\n.ds-field-value {\n  min-width: 0;\n  color: var(--color-ink);\n  text-align: right;\n  word-break: break-all;\n}\n.ds-hash-code {\n  font-family: monospace;\n  font-size: 0.75rem;\n  color: var(--color-muted);\n}\n.ds-file-name {\n  overflow-wrap: anywhere;\n  word-break: normal;\n}\n.ds-source-fields { font-family: var(--font-body); }",
+      "kind": "custom",
+      "description": "SourceComparison.vue .field-row, .file-name e .hash-code; valores fictícios completos e quebráveis.",
+      "name": "Origem consultável"
+    }
+  ],
+  "narrative": {
+    "northStar": "Mesa de conferência contábil",
+    "overview": "Papel claro, tinta azul e cobre sustentam uma interface de trabalho em modo Operate. A hierarquia serve à leitura de fontes, comparação de valores e registro de análise. Os números são tabulares; as divisões são regras finas; a identidade combina marca serifada e texto operacional sem serifa.\n\nEste documento é um REFRESH do provisório, extraído do código vigente. A direção manual code-led foi escolhida por Codex sob autonomia delegada, registrada em `.superpowers/sdd/2026-10-10-lastro/progress.md`. Não houve comp aprovado, seed/concept roll ou quality-bar card; a ausência é uma exceção delegada, não uma escolha em workshop. As decisões qualitativas preservam a direção já registrada, sem nova preferência atribuída ao usuário.",
+    "rules": [
+      {
+        "body": "Marcar um resultado como revisado não muda sua classificação nem seu valor e não transforma uma divergência em correspondência verde.",
+        "section": "colors",
+        "name": "Classification"
+      },
+      {
+        "body": "Valores monetários, datas e identificadores indicados pelo código usam `font-variant-numeric: tabular-nums`; ausências continuam explícitas.",
+        "section": "typography",
+        "name": "Numeric"
+      },
+      {
+        "body": "Use regras e fundos para organizar dados; reserve a sombra implementada ao diálogo de reinício.",
+        "section": "elevation",
+        "name": "Flat Surface"
+      }
+    ],
+    "dos": [
+      "**Do** usar rótulos e valores tabulares para comparar fontes fictícias.",
+      "**Do** manter classificação e revisão como estados independentes.",
+      "**Do** preservar nomes de arquivos e hashes completos com quebra de linha.",
+      "**Do** usar registros rotulados no celular e regras finas dentro das áreas de trabalho.",
+      "**Do** manter o botão Buscar inteiro enquanto o campo reduz sua largura."
+    ],
+    "keyCharacteristics": [
+      "Papel claro e tinta azul, com cobre e verde vinculados à classificação.",
+      "Comparação rotulada, origem integral e valores tabulares.",
+      "Superfícies planas separadas por regras finas.",
+      "Navegação superior e registros móveis empilhados."
+    ],
+    "donts": [
+      "**Don't** transformar ausência em zero ou revisão em correspondência verde.",
+      "**Don't** inventar escala de spacing, sombras, métricas ou componentes sem fonte no código.",
+      "**Don't** atribuir comp, seed ou escolha em workshop a esta direção manual delegada.",
+      "**Don't** repetir grafite, laranja e navegação lateral do Bancada.",
+      "**Don't** adicionar imagens, textura física simulada, gradient text ou faixas decorativas à direção vigente."
+    ]
+  },
+  "generatedAt": "2026-10-13T00:10:19.9717851Z",
+  "title": "Design System: Lastro",
+  "schemaVersion": 2,
+  "extensions": {
+    "breakpoints": [
+      {
+        "value": "640px",
+        "name": "mobile"
+      },
+      {
+        "value": "768px",
+        "name": "source-layout"
+      },
+      {
+        "value": "1024px",
+        "name": "results-stack"
+      }
+    ],
+    "colorMeta": {
+      "match": {
+        "displayName": "match",
+        "role": "tertiary"
+      },
+      "match-subtle": {
+        "displayName": "match-subtle",
+        "role": "tertiary"
+      },
+      "copper-subtle": {
+        "displayName": "copper-subtle",
+        "role": "secondary"
+      },
+      "border-subtle": {
+        "displayName": "border-subtle",
+        "role": "neutral"
+      },
+      "surface": {
+        "displayName": "surface",
+        "role": "neutral"
+      },
+      "ink": {
+        "displayName": "ink",
+        "role": "primary"
+      },
+      "neutral-badge": {
+        "displayName": "neutral-badge",
+        "role": "neutral"
+      },
+      "focus": {
+        "displayName": "focus",
+        "role": "primary"
+      },
+      "muted": {
+        "displayName": "muted",
+        "role": "neutral"
+      },
+      "copper-border": {
+        "displayName": "copper-border",
+        "role": "secondary"
+      },
+      "copper": {
+        "displayName": "copper",
+        "role": "secondary"
+      },
+      "neutral-border": {
+        "displayName": "neutral-border",
+        "role": "neutral"
+      },
+      "page": {
+        "displayName": "page",
+        "role": "neutral"
+      },
+      "match-border": {
+        "displayName": "match-border",
+        "role": "tertiary"
+      },
+      "border": {
+        "displayName": "border",
+        "role": "neutral"
+      },
+      "neutral-bg": {
+        "displayName": "neutral-bg",
+        "role": "neutral"
+      }
+    },
+    "motion": [
+      {
+        "purpose": "Transições de cores em botões, campos e navegação; sem animação geométrica.",
+        "value": "150ms ease",
+        "name": "control-transition"
+      }
+    ],
+    "typographyMeta": {
+      "body": {
+        "displayName": "Leitura operacional",
+        "purpose": "resources/css/app.css body."
+      },
+      "title": {
+        "displayName": "Título operacional",
+        "purpose": "Conferences/Index.vue, Imports/Preview.vue e Runs/Show.vue .page-title."
+      },
+      "display": {
+        "displayName": "Entrada serifada",
+        "purpose": "Auth/Login.vue .editorial-headline e .brand-title."
+      },
+      "label": {
+        "displayName": "Rótulo",
+        "purpose": "resources/css/app.css .form-label."
+      }
+    },
+    "shadows": [
+      {
+        "purpose": "DemoControls.vue .modal-card somente.",
+        "value": "0 4px 12px rgba(24, 50, 74, 0.08)",
+        "name": "reset-dialog"
+      }
+    ]
+  }
+}
